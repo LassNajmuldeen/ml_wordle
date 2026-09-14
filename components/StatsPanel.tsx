@@ -37,7 +37,7 @@ export function StatsPanel({
       <div className="dist">
         <p className="sr">Guess distribution</p>
         {stats.dist.map((count, i) => (
-          <div className="bar" key={i}>
+          <div className="distrow" key={i}>
             <span className="n num" aria-hidden>
               {i + 1}
             </span>

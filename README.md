@@ -16,12 +16,12 @@ Guess an architecture from a 128-entry deck. Each guess returns a row of seven c
 
 | Column | Exact (green) | Near (amber) | Wrong (crimson) |
 |---|---|---|---|
-| **Year** | same year | within 3 years, plus ▲/▼ | further, plus ▲/▼ |
-| **Modality** | identical set | sets overlap (`2/4 shared`) | disjoint |
+| **Year** | same year | — | anything else, with ↑/↓ toward the answer |
+| **Modality** | identical set | sets overlap, and the tile names what overlapped (`shares Language`) | disjoint |
 | **Mechanism** | same block type | same family (`Recurrence`↔`State space`) | different family |
 | **Paradigm** | same objective | same family (`Masked`↔`Contrastive` = self-supervised) | different family |
 | **Origin** | same lab | sibling lab (Google ↔ DeepMind) or same country | neither |
-| **Scale** | same order-of-magnitude bucket | adjacent bucket, plus ▲/▼ | further, plus ▲/▼ |
+| **Scale** | same order-of-magnitude bucket | — | anything else, with ↑/↓ toward the answer |
 | **Weights** | same | Open↔Partial or Partial↔Closed | Open vs Closed |
 
 A fourth state, **hatched grey**, means *undisclosed* — GPT-4, Gemini and Claude
@@ -33,10 +33,11 @@ signal, not a bug: hatched Scale narrows the field to about six models.
 Wordle's yellow is "right letter, wrong place". Architectures have no positions,
 so the yellow is rebuilt from four different kinds of near-miss:
 
-1. **Ordinal near-miss** — Year and Scale are numbers, so they get amber for
-   *close* plus a direction arrow. This is the strongest hint in the game.
+1. **Ordinal columns have no amber** — Year and Scale are exact or nothing. An
+   arrow already tells you which way to move, so a "close" band on top of it
+   gave away too much (it was the single most revealing signal on the board).
 2. **Set near-miss** — Modality is a set, so partial overlap is amber and the
-   cell prints how much overlaps.
+   tile names what overlapped.
 3. **Taxonomic near-miss** — Mechanism and Paradigm sit in families. Guessing
    Mamba against an LSTM answer is amber, because both are recurrent.
 4. **Institutional near-miss** — Google Brain against a DeepMind answer is
@@ -104,9 +105,8 @@ cheating doesn't work, which is the one thing Wordle clones usually get wrong.
 | `POST /api/hint` | reveal one property, at the cost of a guess |
 
 Both `/api/guess` and `/api/hint` also take the guess history and return
-`remaining`: how many of the 119 possible answers are still consistent with every
-clue given so far. The server replays each clue against each candidate, so the
-number is exact rather than an estimate.
+Neither returns any count of remaining possibilities: the board deliberately
+does not tell you how much of the field a guess eliminated.
 | `POST /api/reveal` | the full answer, after the game ends |
 
 The daily answer is `ORDER[(puzzleNumber - 1) % ORDER.length]`, where `ORDER` is
@@ -200,11 +200,10 @@ consistent, over 12 seeds against every answer.
 
 | Configuration | Pool | Median left | Determined in 1 | Mean guesses |
 |---|---|---|---|---|
-| 7 fields, arrows (**shipped**) | 119 | 2 | 37% | 2.51 |
-| Same, old 60-answer pool | 60 | 1 | 52% | 2.31 |
-| No arrows | 119 | 3 | 32% | 2.58 |
-| No near state | 119 | 7 | 14% | 3.05 |
-| 5 fields, no arrows, 128 | 128 | 6 | 17% | 2.97 |
+| **Shipped**: 119 answers, ordinals exact-or-arrow | 119 | 3 | 27% | 2.71 |
+| Amber band on Year and Scale, 119 answers | 119 | 2 | 37% | 2.51 |
+| Amber band, old 60-answer pool | 60 | 1 | 52% | 2.31 |
+| Shipped, minus the arrows | 119 | 4 | 21% | 2.85 |
 
 Per-field information, each column alone against the 60-answer pool (median
 answers left after one guess, lower means more revealing):
@@ -226,9 +225,8 @@ Solving records the result locally (`lib/stats.ts`): games played, solve rate,
 current and best streak, and a guess distribution, all shown on the verdict
 alongside a countdown to the next UTC midnight. Nothing leaves the browser.
 
-Each row also prints how far your guess narrowed the field, but only when the
-number actually moved. Repeating "12 still possible" on three rows in a row is
-noise; a drop from 60 to 12 is the point of the game.
+The board does not report how many answers are still possible. Working that out
+is the game.
 
 ## 7. Design
 

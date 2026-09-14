@@ -7,13 +7,7 @@ import { Dialog } from "@/components/Dialog";
 import { StatsPanel } from "@/components/StatsPanel";
 import { Verdict, type Answer } from "@/components/Verdict";
 import { loadStats, recordResult, type Stats } from "@/lib/stats";
-import {
-  FIELDS,
-  FIELD_LABEL,
-  MAX_GUESSES,
-  type GuessResult,
-  type HistoryEntry,
-} from "@/lib/ui";
+import { FIELDS, FIELD_LABEL, MAX_GUESSES, type GuessResult } from "@/lib/ui";
 
 type Status = "playing" | "won" | "lost";
 type Saved = { rows: Row[]; status: Status; hintUsed: boolean; answer: Answer | null };
@@ -75,17 +69,6 @@ export default function Page() {
     );
   }, [mode, dailyN, rows, status, hintUsed, answer]);
 
-  /** Replayed server-side to count how many answers are still consistent. */
-  const history = useMemo<HistoryEntry[]>(
-    () =>
-      rows.map((r) =>
-        r.kind === "hint"
-          ? { kind: "hint", field: r.field }
-          : { kind: "guess", name: r.name },
-      ),
-    [rows],
-  );
-
   const reveal = useCallback(async (num: number) => {
     const r = await fetch("/api/reveal", {
       method: "POST",
@@ -132,7 +115,7 @@ export default function Page() {
       const res = await fetch("/api/guess", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ n, guess: value, history }),
+        body: JSON.stringify({ n, guess: value }),
       });
       if (!res.ok) {
         setTone("error");
@@ -165,13 +148,10 @@ export default function Page() {
     const res = await fetch("/api/hint", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ n, field, history }),
+      body: JSON.stringify({ n, field }),
     });
-    const d: { field: string; value: string; remaining?: number } = await res.json();
-    const next: Row[] = [
-      ...rows,
-      { kind: "hint", field: d.field, value: d.value, remaining: d.remaining },
-    ];
+    const d: { field: string; value: string } = await res.json();
+    const next: Row[] = [...rows, { kind: "hint", field: d.field, value: d.value }];
     setHintUsed(true);
     setRows(next);
     if (next.length >= MAX_GUESSES) {
@@ -341,8 +321,8 @@ export default function Page() {
           <li>
             <span className="chip" data-state="partial">Language</span>
             <span>
-              Close: same family, overlapping modality, adjacent size bracket,
-              sibling lab, or within three years. The small line says which.
+              Close: overlapping modality, same mechanism or paradigm family, or a
+              sibling lab. The small line under the value says what overlapped.
             </span>
           </li>
           <li>
@@ -354,8 +334,11 @@ export default function Page() {
             <span>Not comparable. Some labs never published a parameter count.</span>
           </li>
           <li>
-            <span className="chip" data-state="exact">2015 ↑</span>
-            <span>On Year and Scale, the arrow points toward the answer.</span>
+            <span className="chip" data-state="miss">2015 ↑</span>
+            <span>
+              Year and Scale are exact or nothing: if the tile is not green, the
+              arrow points toward the answer.
+            </span>
           </li>
         </ul>
       </Dialog>

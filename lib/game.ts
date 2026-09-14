@@ -1,18 +1,15 @@
 import { ANSWER_POOL, ARCHITECTURES, NAME_INDEX, norm } from "./architectures";
 import { MECHANISM_FAMILY, PARADIGM_FAMILY, type Arch } from "./types";
-import { FIELDS as ALL_FIELDS } from "./ui";
-import type { Cell, Field, GuessResult, HistoryEntry } from "./ui";
+import type { Cell, Field, GuessResult } from "./ui";
 
 export {
   MAX_GUESSES,
-  POOL_SIZE,
   FIELDS,
   FIELD_LABEL,
   type Field,
   type Cell,
   type CellState,
   type GuessResult,
-  type HistoryEntry,
 } from "./ui";
 
 export const EPOCH = Date.UTC(2026, 0, 1);
@@ -55,10 +52,10 @@ function orgGroup(org: string): string | null {
 
 // ── comparison ──────────────────────────────────────────────────────────────
 export function compare(guess: Arch, answer: Arch): GuessResult {
+  // Ordinal columns have no near state: the arrow already says how to move.
   const yearDelta = answer.year - guess.year;
   const year: Cell = {
-    state:
-      yearDelta === 0 ? "exact" : Math.abs(yearDelta) <= 3 ? "partial" : "miss",
+    state: yearDelta === 0 ? "exact" : "miss",
     text: String(guess.year),
     dir: yearDelta === 0 ? undefined : yearDelta > 0 ? "up" : "down",
   };
@@ -66,18 +63,13 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
   const gm = new Set(guess.modality);
   const am = new Set(answer.modality);
   const overlap = [...gm].filter((m) => am.has(m)).length;
+  const shared = guess.modality.filter((m) => am.has(m));
+  const exactSet = overlap === gm.size && overlap === am.size;
   const modality: Cell = {
-    state:
-      overlap === gm.size && overlap === am.size
-        ? "exact"
-        : overlap > 0
-          ? "partial"
-          : "miss",
+    state: exactSet ? "exact" : overlap > 0 ? "partial" : "miss",
     text: guess.modality.join(" · "),
-    sub:
-      overlap > 0 && !(overlap === gm.size && overlap === am.size)
-        ? `${overlap}/${am.size} shared`
-        : undefined,
+    // Naming what overlapped beats a fraction nobody can read the denominator of.
+    sub: !exactSet && overlap > 0 ? `shares ${shared.join(", ")}` : undefined,
   };
 
   const mechanism: Cell = {
@@ -124,7 +116,7 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
           text: bucketLabel(guess.params),
         }
       : {
-          state: gb === ab ? "exact" : Math.abs(gb - ab) === 1 ? "partial" : "miss",
+          state: gb === ab ? "exact" : "miss",
           text: bucketLabel(guess.params),
           dir: gb === ab ? undefined : ab > gb ? "up" : "down",
         };
@@ -185,8 +177,6 @@ export const ALL_NAMES = ARCHITECTURES.map((a) => a.name).sort((x, y) =>
   x.localeCompare(y),
 );
 
-// ── how much of the answer pool is still alive ──────────────────────────────
-
 /** The single source of truth for what a revealed property says. */
 export function revealField(a: Arch, field: string): string {
   switch (field) {
@@ -202,28 +192,3 @@ export function revealField(a: Arch, field: string): string {
   }
 }
 
-/** Two feedback rows look identical to the player when every cell agrees. */
-function sameFeedback(a: GuessResult, b: GuessResult): boolean {
-  return ALL_FIELDS.every((f) => {
-    const x = a.cells[f];
-    const y = b.cells[f];
-    return x.state === y.state && x.dir === y.dir && x.text === y.text;
-  });
-}
-
-/**
- * Count the answers a perfect logician could still be holding. Every clue the
- * player has been given is replayed against each candidate; a candidate
- * survives only if it would have produced exactly the same board.
- */
-export function candidatesLeft(answer: Arch, history: HistoryEntry[]): number {
-  if (history.length === 0) return ANSWER_POOL.length;
-  return ANSWER_POOL.filter((cand) =>
-    history.every((h) => {
-      if (h.kind === "hint") return revealField(cand, h.field) === revealField(answer, h.field);
-      const g = lookup(h.name);
-      if (!g) return true;
-      return sameFeedback(compare(g, cand), compare(g, answer));
-    }),
-  ).length;
-}
