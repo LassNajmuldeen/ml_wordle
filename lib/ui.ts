@@ -33,14 +33,4 @@ export type GuessResult = {
   name: string;
   correct: boolean;
   cells: Record<Field, Cell>;
-  /** answers still consistent with every clue so far */
-  remaining?: number;
 };
-
-/** What the player has been told so far, replayed server-side to count candidates. */
-export type HistoryEntry =
-  | { kind: "guess"; name: string }
-  | { kind: "hint"; field: string };
-
-/** Size of the daily answer pool, before any guess narrows it. */
-export const POOL_SIZE = 119;

@@ -226,7 +226,6 @@ body {
   font-size: 0.9375rem;
   overflow-wrap: break-word;
 }
-.cap .narrow { margin-left: auto; }
 
 /* Wide: the name moves out into the gutter. The tile grid does not move. */
 @media (min-width: 1100px) {
@@ -244,11 +243,9 @@ body {
     margin: 0;
     padding-top: var(--s3);
   }
-  .cap .narrow { margin-left: 0; }
 }
 .cap .nm { font-weight: 600; letter-spacing: -0.005em; }
 .cap[data-win="true"] .nm { color: #6fcf9b; }
-.narrow { font-size: 0.75rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
 .tile {
   border-radius: 8px;
@@ -320,7 +317,6 @@ body {
 }
 .hintrow .k { font-size: 0.75rem; color: var(--ink-3); }
 .hintrow .v { font-weight: 500; }
-.hintrow .narrow { margin-left: auto; }
 
 /* ── controls ───────────────────────────────────────────────────────────── */
 .controls { margin-top: var(--s5); display: flex; flex-wrap: wrap; gap: var(--s2); }
@@ -359,6 +355,7 @@ body {
 /* ── dialogs ────────────────────────────────────────────────────────────── */
 dialog {
   z-index: var(--z-dialog);
+  margin: auto;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--raise);
@@ -407,7 +404,8 @@ dialog[open] { animation: dlg 200ms var(--ease) both; }
 .figures dt { font-size: 0.75rem; color: var(--ink-3); }
 .figures dd { margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.1; }
 .dist { margin-top: var(--s4); display: grid; gap: 3px; }
-.bar {
+/* NOT .bar: that class is the page header, and its margin/border leak in. */
+.distrow {
   display: grid;
   grid-template-columns: 0.9rem 1fr 1.4rem;
   align-items: center;
@@ -415,14 +413,14 @@ dialog[open] { animation: dlg 200ms var(--ease) both; }
   font-size: 0.6875rem;
   color: var(--ink-3);
 }
-.bar .fill {
+.distrow .fill {
   height: 15px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.14);
   transition: width 420ms var(--ease);
 }
-.bar .fill[data-current="true"] { background: var(--exact-bg); }
-.bar .c { text-align: right; }
+.distrow .fill[data-current="true"] { background: var(--exact-bg); }
+.distrow .c { text-align: right; }
 .countdown { margin: var(--s4) 0 0; padding-top: var(--s3); border-top: 1px solid var(--line); font-size: 0.8125rem; color: var(--ink-3); }
 .countdown time { color: var(--ink-2); font-variant-numeric: tabular-nums; }
 

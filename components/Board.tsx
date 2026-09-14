@@ -1,6 +1,6 @@
 import { FIELDS, FIELD_LABEL, type GuessResult } from "@/lib/ui";
 
-export type HintRow = { kind: "hint"; field: string; value: string; remaining?: number };
+export type HintRow = { kind: "hint"; field: string; value: string };
 export type Row = ({ kind: "guess" } & GuessResult) | HintRow;
 
 const STATE_WORD = {
@@ -9,17 +9,6 @@ const STATE_WORD = {
   miss: "no match",
   unknown: "not comparable",
 } as const;
-
-/** Repeating an unchanged count is noise; only a drop is worth printing. */
-function narrowing(rows: Row[], i: number): number | null {
-  const here = (rows[i] as { remaining?: number }).remaining;
-  if (here == null) return null;
-  for (let j = i - 1; j >= 0; j--) {
-    const prev = (rows[j] as { remaining?: number }).remaining;
-    if (prev != null) return prev === here ? null : here;
-  }
-  return here;
-}
 
 export function Board({
   rows, freshIndex, total,
@@ -44,7 +33,6 @@ export function Board({
       </div>
 
       {rows.map((r, i) => {
-        const left = narrowing(rows, i);
         if (r.kind === "hint") {
           return (
             <div className="guess" key={`h${i}`}>
@@ -54,7 +42,6 @@ export function Board({
                 <span className="v">
                   {FIELD_LABEL[r.field as keyof typeof FIELD_LABEL] ?? r.field}: {r.value}
                 </span>
-                {left != null && <span className="narrow">{left} still possible</span>}
               </div>
             </div>
           );
@@ -66,11 +53,6 @@ export function Board({
           >
             <div className="cap" data-win={r.correct}>
               <span className="nm">{r.name}</span>
-              {!r.correct && left != null && (
-                <span className="narrow">
-                  {left === 1 ? "only 1 answer fits" : `${left} still possible`}
-                </span>
-              )}
             </div>
             <div className="cols">
               {FIELDS.map((f) => {
