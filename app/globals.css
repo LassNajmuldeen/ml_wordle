@@ -197,7 +197,6 @@ body {
   grid-template-columns: repeat(7, 1fr);
   gap: var(--s2);
 }
-.cols.head { margin-bottom: var(--s4); }
 .cols.head .h {
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
@@ -205,13 +204,25 @@ body {
   text-align: center;
 }
 
-.guess + .guess { margin-top: var(--s5); }
+/* name on the left, tiles on the right */
+.guess {
+  display: grid;
+  grid-template-columns: 11.5rem 1fr;
+  gap: var(--s3);
+  align-items: start;
+}
+.guess.wide { grid-template-columns: 1fr; }
+.guess + .guess { margin-top: var(--s2); }
+.headrow { margin-bottom: var(--s3); }
+
 .cap {
   display: flex;
-  align-items: baseline;
-  gap: var(--s3);
-  margin: 0 0 6px;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding-top: var(--s3);
   font-size: 0.9375rem;
+  overflow-wrap: break-word;
 }
 .cap .nm { font-weight: 600; letter-spacing: -0.005em; }
 .cap[data-win="true"] .nm { color: #6fcf9b; }
@@ -254,7 +265,7 @@ body {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
   animation: none;
 }
-.guess.blank + .guess.blank { margin-top: var(--s2); }
+
 .guess:not(.fresh) .tile { animation: none; }
 .fresh .tile:nth-child(1) { animation-delay: 0ms; }
 .fresh .tile:nth-child(2) { animation-delay: 45ms; }
@@ -397,7 +408,17 @@ dialog[open] { animation: dlg 200ms var(--ease) both; }
 @media (max-width: 760px) {
   .bar { padding: var(--s2) var(--s3); }
   .shell { padding: var(--s4) var(--s3) var(--s5); }
-  .cols.head { display: none; }
+  .headrow { display: none; }
+  .guess, .guess.wide { grid-template-columns: 1fr; }
+  .guess + .guess { margin-top: var(--s4); }
+  .cap {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--s3);
+    padding-top: 0;
+    padding-bottom: 6px;
+  }
+  .cap .narrow { margin-left: auto; }
   .cols { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
   .tile { min-height: 66px; }
   .tile .lab {

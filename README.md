@@ -104,13 +104,13 @@ cheating doesn't work, which is the one thing Wordle clones usually get wrong.
 | `POST /api/hint` | reveal one property, at the cost of a guess |
 
 Both `/api/guess` and `/api/hint` also take the guess history and return
-`remaining`: how many of the 60 possible answers are still consistent with every
+`remaining`: how many of the 119 possible answers are still consistent with every
 clue given so far. The server replays each clue against each candidate, so the
 number is exact rather than an estimate.
 | `POST /api/reveal` | the full answer, after the game ends |
 
 The daily answer is `ORDER[(puzzleNumber - 1) % ORDER.length]`, where `ORDER` is
-a fixed-seed shuffle of the tier-1 entries. Same answer for everyone, worldwide,
+a fixed-seed shuffle of the 119 tier-1 entries. Same answer for everyone, worldwide,
 rolling over at UTC midnight; no storage, no cron. Endless mode passes a random
 puzzle number to the same routes. Progress persists in `localStorage`.
 
@@ -189,8 +189,34 @@ scripts/enrich.mts      the audit pipeline
 ```
 
 Adding an entry is one object in `lib/architectures.ts`. `tier: 1` means it can
-be the daily answer; `tier: 2` means it's guessable but too obscure to be the
-target.
+be the daily answer (119 of them); `tier: 2` means guessable but too obscure to
+be the target (9, mostly pre-2000).
+
+### Difficulty
+
+Measured, not guessed. `median-left` is how many answers survive one consistent
+opening guess; `mean-guesses` is a solver that always guesses something still
+consistent, over 12 seeds against every answer.
+
+| Configuration | Pool | Median left | Determined in 1 | Mean guesses |
+|---|---|---|---|---|
+| 7 fields, arrows (**shipped**) | 119 | 2 | 37% | 2.51 |
+| Same, old 60-answer pool | 60 | 1 | 52% | 2.31 |
+| No arrows | 119 | 3 | 32% | 2.58 |
+| No near state | 119 | 7 | 14% | 3.05 |
+| 5 fields, no arrows, 128 | 128 | 6 | 17% | 2.97 |
+
+Per-field information, each column alone against the 60-answer pool (median
+answers left after one guess, lower means more revealing):
+
+| Scale | Year | Modality | Mechanism | Paradigm | Lab | Weights |
+|---|---|---|---|---|---|---|
+| 14 | 21 | 30 | 32 | 35 | 35 | 42 |
+
+The arrows on Scale and Year are what make those two columns dominant. No single
+column is the problem, and Mechanism is among the least revealing. The real
+ceiling is deck size: 119 answers is about 6.9 bits of entropy, and any seven
+property board yields roughly 5 bits per guess.
 
 ---
 

@@ -32,19 +32,22 @@ export function Board({
   const blanks = Math.max(0, total - rows.length);
   return (
     <section className="board" aria-label="Your guesses">
-      <div className="cols head" aria-hidden>
-        {FIELDS.map((f) => (
-          <div className="h" key={f}>
-            {FIELD_LABEL[f]}
-          </div>
-        ))}
+      <div className="guess headrow" aria-hidden>
+        <div className="cap" />
+        <div className="cols head">
+          {FIELDS.map((f) => (
+            <div className="h" key={f}>
+              {FIELD_LABEL[f]}
+            </div>
+          ))}
+        </div>
       </div>
 
       {rows.map((r, i) => {
         const left = narrowing(rows, i);
         if (r.kind === "hint") {
           return (
-            <div className="guess" key={`h${i}`}>
+            <div className="guess wide" key={`h${i}`}>
               <div className="hintrow">
                 <span className="k">Revealed</span>
                 <span className="v">
@@ -60,14 +63,14 @@ export function Board({
             className={`guess${i === freshIndex ? " fresh" : ""}${r.correct ? " solved" : ""}`}
             key={`${r.name}-${i}`}
           >
-            <p className="cap" data-win={r.correct}>
+            <div className="cap" data-win={r.correct}>
               <span className="nm">{r.name}</span>
               {!r.correct && left != null && (
                 <span className="narrow">
                   {left === 1 ? "only 1 answer fits" : `${left} still possible`}
                 </span>
               )}
-            </p>
+            </div>
             <div className="cols">
               {FIELDS.map((f) => {
                 const c = r.cells[f];
@@ -97,6 +100,7 @@ export function Board({
 
       {Array.from({ length: blanks }, (_, i) => (
         <div className="guess blank" key={`b${i}`} aria-hidden>
+          <div className="cap" />
           <div className="cols">
             {FIELDS.map((f) => (
               <div className="tile empty" key={f} />

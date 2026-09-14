@@ -43,4 +43,4 @@ export type HistoryEntry =
   | { kind: "hint"; field: string };
 
 /** Size of the daily answer pool, before any guess narrows it. */
-export const POOL_SIZE = 60;
+export const POOL_SIZE = 119;
