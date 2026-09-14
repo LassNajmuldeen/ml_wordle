@@ -28,6 +28,10 @@
   --s1: 4px;  --s2: 8px;  --s3: 12px;
   --s4: 18px; --s5: 28px; --s6: 44px;
 
+  /* the names live here, outside the tile grid */
+  --gutter: 0rem;
+  --offset: 0rem;
+
   --z-dialog: 40;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -61,7 +65,7 @@ body {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--s3);
-  max-width: 62rem;
+  max-width: 74rem;
   margin: 0 auto;
   padding: var(--s3) var(--s4);
   border-bottom: 1px solid var(--line);
@@ -117,10 +121,15 @@ body {
 
 /* ── page ───────────────────────────────────────────────────────────────── */
 .shell {
-  max-width: 62rem;
+  max-width: 74rem;
   margin: 0 auto;
   padding: var(--s5) var(--s4) var(--s6);
 }
+
+/* everything that is not a guess name lines up with the tile grid */
+.console,
+.controls,
+.verdict { margin-left: var(--offset); }
 
 /* ── input ──────────────────────────────────────────────────────────────── */
 .console { position: relative; }
@@ -204,25 +213,38 @@ body {
   text-align: center;
 }
 
-/* name on the left, tiles on the right */
-.guess {
-  display: grid;
-  grid-template-columns: 11.5rem 1fr;
-  gap: var(--s3);
-  align-items: start;
-}
-.guess.wide { grid-template-columns: 1fr; }
-.guess + .guess { margin-top: var(--s2); }
+/* Default (narrow): the name sits above its own row, tiles keep full width. */
+.guess { display: grid; grid-template-columns: 1fr; }
+.guess + .guess { margin-top: var(--s4); }
 .headrow { margin-bottom: var(--s3); }
 
 .cap {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  margin: 0;
-  padding-top: var(--s3);
+  align-items: baseline;
+  gap: var(--s3);
+  margin: 0 0 6px;
   font-size: 0.9375rem;
   overflow-wrap: break-word;
+}
+.cap .narrow { margin-left: auto; }
+
+/* Wide: the name moves out into the gutter. The tile grid does not move. */
+@media (min-width: 1100px) {
+  :root { --gutter: 11.5rem; --offset: calc(var(--gutter) + var(--s3)); }
+  .guess {
+    grid-template-columns: var(--gutter) 1fr;
+    gap: var(--s3);
+    align-items: start;
+  }
+  .guess + .guess { margin-top: var(--s2); }
+  .cap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    margin: 0;
+    padding-top: var(--s3);
+  }
+  .cap .narrow { margin-left: 0; }
 }
 .cap .nm { font-weight: 600; letter-spacing: -0.005em; }
 .cap[data-win="true"] .nm { color: #6fcf9b; }
@@ -409,16 +431,6 @@ dialog[open] { animation: dlg 200ms var(--ease) both; }
   .bar { padding: var(--s2) var(--s3); }
   .shell { padding: var(--s4) var(--s3) var(--s5); }
   .headrow { display: none; }
-  .guess, .guess.wide { grid-template-columns: 1fr; }
-  .guess + .guess { margin-top: var(--s4); }
-  .cap {
-    flex-direction: row;
-    align-items: baseline;
-    gap: var(--s3);
-    padding-top: 0;
-    padding-bottom: 6px;
-  }
-  .cap .narrow { margin-left: auto; }
   .cols { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
   .tile { min-height: 66px; }
   .tile .lab {

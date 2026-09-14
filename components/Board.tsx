@@ -47,7 +47,8 @@ export function Board({
         const left = narrowing(rows, i);
         if (r.kind === "hint") {
           return (
-            <div className="guess wide" key={`h${i}`}>
+            <div className="guess" key={`h${i}`}>
+              <div className="cap" />
               <div className="hintrow">
                 <span className="k">Revealed</span>
                 <span className="v">

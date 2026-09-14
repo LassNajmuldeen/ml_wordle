@@ -51,11 +51,13 @@ A single bar, then the board. Nothing else above the fold.
 
 - **Bar**: help icon, centred wordmark with the puzzle number beneath it, mode
   buttons and a stats icon. One `1px` bottom rule, the only rule on the page.
-- **Board**: seven equal tile columns at `76px` minimum height. Each guess is a
-  caption line (name, plus how far it narrowed the field) above its own row of
-  tiles, so tiles get the full column width instead of sharing it with a label
-  column. Unplayed attempts render as outlined empty rows, so the board has its
-  full shape before the first guess.
+- **Board**: seven equal tile columns at `76px` minimum height. The tile grid is
+  the fixed element; nothing is allowed to narrow it. Above 1100px the guess name
+  moves out into an 11.5rem gutter to the left of the grid, and the input, hint
+  rows and verdict shift by the same offset so everything stays aligned with the
+  tiles. Below 1100px the gutter collapses to zero and the name sits above its
+  own row instead. Tile width is identical either way. Unplayed attempts render
+  as outlined rows, so the board has its full shape before the first guess.
 - **Below 760px**: the header row disappears, tiles reflow at
   `minmax(96px, 1fr)` and print their property name inside. No horizontal
   scrolling at any width.
