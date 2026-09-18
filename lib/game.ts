@@ -95,14 +95,10 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
   const sameGroup =
     orgGroup(guess.org) !== null && orgGroup(guess.org) === orgGroup(answer.org);
   const origin: Cell = {
-    state:
-      guess.org === answer.org
-        ? "exact"
-        : sameGroup || guess.country === answer.country
-          ? "partial"
-          : "miss",
+    // Lab only: which country it sat in never told you anything useful.
+    state: guess.org === answer.org ? "exact" : sameGroup ? "partial" : "miss",
     text: guess.org,
-    sub: guess.country,
+    sub: sameGroup ? orgGroup(guess.org)! : undefined,
   };
 
   const gb = bucket(guess.params);
@@ -182,7 +178,7 @@ export function revealField(a: Arch, field: string): string {
     case "modality": return a.modality.join(" · ");
     case "mechanism": return a.mechanism;
     case "paradigm": return a.paradigm;
-    case "origin": return `${a.org}, ${a.country}`;
+    case "origin": return a.org;
     case "params": return bucketLabel(a.params);
     case "weights": return a.weights;
     case "lineage": return a.parents.length ? a.parents.join(", ") : "no listed ancestor";

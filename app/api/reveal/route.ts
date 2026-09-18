@@ -11,7 +11,6 @@ export async function POST(req: Request) {
     name: a.name,
     year: a.year,
     org: a.org,
-    country: a.country,
     modality: a.modality,
     mechanism: a.mechanism,
     paradigm: a.paradigm,

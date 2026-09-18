@@ -2,7 +2,6 @@ export type Answer = {
   name: string;
   year: number;
   org: string;
-  country: string;
   scale: string;
   weights: string;
   parents: string[];
@@ -42,7 +41,7 @@ export function Verdict({
       </p>
       <h2 className="name">{answer.name}</h2>
       <p className="facts">
-        {answer.year} · {answer.org}, {answer.country} · {answer.scale} ·{" "}
+        {answer.year} · {answer.org} · {answer.scale} ·{" "}
         {answer.weights.toLowerCase()} weights
       </p>
       <p className="blurb">{answer.blurb}</p>
