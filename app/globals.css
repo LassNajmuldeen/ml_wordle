@@ -65,27 +65,34 @@ body {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--s3);
-  max-width: 74rem;
+  max-width: 64rem;
   margin: 0 auto;
-  padding: var(--s3) var(--s4);
+  padding: var(--s4) var(--s4);
   border-bottom: 1px solid var(--line);
 }
-.bar .left { justify-self: start; }
+.bar .left { justify-self: start; display: flex; align-items: center; gap: var(--s2); }
+.hintpick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1);
+}
+.hintpick .note { font-size: 0.75rem; color: var(--ink-3); }
 .bar .right { justify-self: end; display: flex; align-items: center; gap: var(--s2); }
 
 .wordmark {
   margin: 0;
   text-align: center;
   font-family: var(--font-serif), Georgia, serif;
-  font-size: 1.375rem;
+  font-size: 2rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   line-height: 1.1;
 }
 .puzzleno {
   display: block;
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 400;
   letter-spacing: 0.06em;
   color: var(--ink-3);
@@ -95,7 +102,7 @@ body {
   appearance: none;
   background: none;
   border: 0;
-  padding: 6px;
+  padding: 8px;
   border-radius: 6px;
   color: var(--ink-2);
   cursor: pointer;
@@ -108,10 +115,10 @@ body {
   appearance: none;
   background: none;
   border: 0;
-  padding: 5px 9px;
+  padding: 7px 13px;
   border-radius: 999px;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.9375rem;
   color: var(--ink-3);
   cursor: pointer;
   transition: color 140ms var(--ease), background 140ms var(--ease);
@@ -121,15 +128,12 @@ body {
 
 /* ── page ───────────────────────────────────────────────────────────────── */
 .shell {
-  max-width: 74rem;
+  max-width: 64rem;
   margin: 0 auto;
   padding: var(--s5) var(--s4) var(--s6);
 }
 
-/* everything that is not a guess name lines up with the tile grid */
-.console,
-.controls,
-.verdict { margin-left: var(--offset); }
+/* the console, controls and verdict line up with the tile grid */
 
 /* ── input ──────────────────────────────────────────────────────────────── */
 .console { position: relative; }
@@ -228,8 +232,10 @@ body {
 }
 
 /* Wide: the name moves out into the gutter. The tile grid does not move. */
-@media (min-width: 1100px) {
+@media (min-width: 1280px) {
   :root { --gutter: 11.5rem; --offset: calc(var(--gutter) + var(--s3)); }
+  /* the names hang off to the left; the tile grid stays centred with the page */
+  .board { margin-left: calc(-1 * var(--offset)); }
   .guess {
     grid-template-columns: var(--gutter) 1fr;
     gap: var(--s3);
@@ -238,11 +244,15 @@ body {
   .guess + .guess { margin-top: var(--s2); }
   .cap {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 1px;
     margin: 0;
-    padding-top: var(--s3);
+    padding: 0 var(--s2);
+    min-height: 76px;
   }
+  .headrow .cap { min-height: 0; }
 }
 .cap .nm { font-weight: 600; letter-spacing: -0.005em; }
 .cap[data-win="true"] .nm { color: #6fcf9b; }
@@ -319,7 +329,6 @@ body {
 .hintrow .v { font-weight: 500; }
 
 /* ── controls ───────────────────────────────────────────────────────────── */
-.controls { margin-top: var(--s5); display: flex; flex-wrap: wrap; gap: var(--s2); }
 .ghost {
   appearance: none;
   cursor: pointer;
@@ -361,7 +370,7 @@ dialog {
   background: var(--raise);
   color: var(--ink);
   padding: 0;
-  width: min(30rem, calc(100vw - 2rem));
+  width: min(40rem, calc(100vw - 2rem));
   max-height: calc(100vh - 4rem);
   overflow: auto;
 }
@@ -376,28 +385,29 @@ dialog[open] { animation: dlg 200ms var(--ease) both; }
   align-items: center;
   justify-content: space-between;
   gap: var(--s3);
-  padding: var(--s4);
+  padding: var(--s4) var(--s5);
   border-bottom: 1px solid var(--line);
 }
-.dlg-head h2 { margin: 0; font-size: 0.9375rem; font-weight: 600; }
-.dlg-body { padding: var(--s4); }
+.dlg-head h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--ink); }
+.dlg-body { padding: var(--s5); font-size: 1rem; color: var(--ink); }
 
 .keylist { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s3); }
-.keylist li { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s3); align-items: start; font-size: 0.8125rem; color: var(--ink-2); }
+.keylist { gap: var(--s4); }
+.keylist li { display: grid; grid-template-columns: 7rem 1fr; gap: var(--s4); align-items: start; font-size: 0.9375rem; line-height: 1.5; color: var(--ink); }
 .chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  padding: 5px 8px;
-  font-size: 0.75rem;
+  padding: 7px 10px;
+  font-size: 0.875rem;
   font-weight: 500;
   box-shadow: var(--edge);
 }
 .chip[data-state="exact"] { background: var(--exact-bg); color: var(--exact-ink); }
 .chip[data-state="partial"] { background: var(--near-bg); color: var(--near-ink); }
 .chip[data-state="miss"] { background: var(--miss-bg); color: var(--miss-ink); }
-.chip[data-state="unknown"] { background: transparent; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line); }
+.chip[data-state="unknown"] { background: transparent; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
 
 .figures { margin: 0; display: flex; flex-wrap: wrap; gap: var(--s4) var(--s5); }
 .figures div { display: flex; flex-direction: column-reverse; gap: 1px; }

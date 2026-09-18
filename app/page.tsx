@@ -221,6 +221,33 @@ export default function Page() {
               <circle cx="9" cy="12.7" r="0.85" fill="currentColor" />
             </svg>
           </button>
+
+          {status === "playing" && (
+            <div className="hintbox">
+              {!picking ? (
+                <button
+                  className="ghost"
+                  disabled={hintUsed || left <= 1}
+                  aria-expanded={false}
+                  onClick={() => setPicking(true)}
+                >
+                  {hintUsed ? "Property revealed" : "Reveal a property"}
+                </button>
+              ) : (
+                <div className="hintpick">
+                  <span className="note">Costs a guess:</span>
+                  {FIELDS.map((f) => (
+                    <button className="ghost" key={f} onClick={() => takeHint(f)}>
+                      {FIELD_LABEL[f]}
+                    </button>
+                  ))}
+                  <button className="ghost" onClick={() => setPicking(false)}>
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <h1 className="wordmark">
@@ -265,32 +292,6 @@ export default function Page() {
         )}
 
         <Board rows={rows} freshIndex={rows.length - 1} total={MAX_GUESSES} />
-
-        {status === "playing" && rows.length > 0 && (
-          <div className="controls">
-            {!picking && (
-              <button
-                className="ghost"
-                disabled={hintUsed || left <= 1}
-                aria-expanded={picking}
-                onClick={() => setPicking(true)}
-              >
-                {hintUsed ? "Property revealed" : "Reveal a property (costs a guess)"}
-              </button>
-            )}
-            {picking &&
-              FIELDS.map((f) => (
-                <button className="ghost" key={f} onClick={() => takeHint(f)}>
-                  {FIELD_LABEL[f]}
-                </button>
-              ))}
-            {picking && (
-              <button className="ghost" onClick={() => setPicking(false)}>
-                Cancel
-              </button>
-            )}
-          </div>
-        )}
 
         {status !== "playing" && answer && (
           <Verdict

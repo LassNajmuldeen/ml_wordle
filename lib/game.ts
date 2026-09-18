@@ -80,7 +80,6 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
           ? "partial"
           : "miss",
     text: guess.mechanism,
-    sub: MECHANISM_FAMILY[guess.mechanism],
   };
 
   const paradigm: Cell = {
@@ -91,7 +90,6 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
           ? "partial"
           : "miss",
     text: guess.paradigm,
-    sub: PARADIGM_FAMILY[guess.paradigm],
   };
 
   const sameGroup =

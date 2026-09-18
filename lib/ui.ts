@@ -1,5 +1,5 @@
 /** Shared, data-free constants + types. Safe to import from client code. */
-export const MAX_GUESSES = 8;
+export const MAX_GUESSES = 7;
 
 export const FIELDS = [
   "year",
