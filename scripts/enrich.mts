@@ -8,7 +8,6 @@
  *   1. arXiv API            canonical first-preprint date + exact title
  *   2. Semantic Scholar     venue, author affiliations, citation count
  *   3. Hugging Face Hub     parameter counts (safetensors), licence -> weights
- *   4. Wikidata SPARQL      organisation -> country
  *
  * Everything here is a public JSON/Atom API with no key required. No HTML
  * scraping: the pages that hold this data (Papers with Code is gone, arXiv
@@ -101,32 +100,6 @@ async function hf(name: string): Promise<HFModel | null> {
   return getJSON<HFModel>(`https://huggingface.co/api/models/${id}`);
 }
 
-// ── 4. Wikidata ─────────────────────────────────────────────────────────────
-async function wikidataCountry(org: string): Promise<string | null> {
-  const sparql = `
-    SELECT ?countryLabel WHERE {
-      ?org rdfs:label "${org.replace(/"/g, "")}"@en .
-      ?org wdt:P17 ?country .
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-    } LIMIT 1`;
-  const url =
-    "https://query.wikidata.org/sparql?format=json&query=" +
-    encodeURIComponent(sparql);
-  const d = await getJSON<{ results: { bindings: { countryLabel: { value: string } }[] } }>(url);
-  return d?.results?.bindings?.[0]?.countryLabel?.value ?? null;
-}
-
-const COUNTRY_ALIAS: Record<string, string> = {
-  "United States": "USA",
-  "United States of America": "USA",
-  "United Kingdom": "UK",
-  "People's Republic of China": "China",
-  "United Arab Emirates": "UAE",
-};
-function normaliseCountry(c: string | null): string | null {
-  return c == null ? null : (COUNTRY_ALIAS[c] ?? c);
-}
-
 // ── audit one entry ─────────────────────────────────────────────────────────
 async function audit(a: Arch): Promise<Finding[]> {
   const out: Finding[] = [];
@@ -171,9 +144,6 @@ async function audit(a: Arch): Promise<Finding[]> {
     const open = /apache|mit|bsd|openrail|cc-by/i.test(model.cardData.license);
     push("weights", a.weights, open ? "Open" : "Partial", `HF licence: ${model.cardData.license}`);
   }
-
-  const country = normaliseCountry(await wikidataCountry(a.org));
-  push("country", a.country, country, "Wikidata P17");
 
   return out;
 }

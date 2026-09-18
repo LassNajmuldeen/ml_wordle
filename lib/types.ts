@@ -24,7 +24,6 @@ export type Arch = {
   mechanism: Mechanism;
   paradigm: Paradigm;
   org: string;
-  country: string;
   /** flagship-variant parameter count, in millions; null = never disclosed */
   params: number | null;
   weights: Weights;
