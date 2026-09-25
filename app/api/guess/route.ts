@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { answerCard, answerFor, cluesFor, compare, lookup } from "@/lib/game";
+import { answerCard, answerFor, compare, lookup } from "@/lib/game";
 import { MAX_GUESSES } from "@/lib/shared";
 import { sign, verify } from "@/lib/token";
 
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     {
       row,
       token: sign({ n: state.n, g }),
-      clues: cluesFor(answer, g.length),
       answer: done ? answerCard(answer) : null,
     },
     { headers: { "cache-control": "no-store" } },

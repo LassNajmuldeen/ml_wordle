@@ -35,9 +35,9 @@ notes under the values.
 (GPT-4, Gemini, Claude), and SVMs and random forests don't have one. The two are
 labelled `undisclosed` and `non-parametric` and only match their own kind.
 
-**Clues unlock for free** as you guess: the answer's lineage after 3 guesses
-("Builds on DDPM, CLIP"), and its one-line description, with its own name
-blanked out, after 5.
+**One clue, by choice.** After 5 guesses you can reveal the answer's one-line
+description, with its own name blanked out. It's free and only appears if you
+click for it; the server won't send it before then.
 
 **Results** are named for how quickly you got there: 1 guess is *Zero-shot*,
 2 *One-shot*, 3 *Few-shot*, then *Converged*, *Fine-tuned*, and so on. A loss
@@ -54,7 +54,8 @@ aliases and years for autocomplete.
 | Route | Does |
 |---|---|
 | `POST /api/start` | `{ mode: "daily" \| "practice" }` → a signed token for a new game. The server picks the day, not the browser's clock. |
-| `POST /api/guess` | `{ token, guess }` → the graded row, a new token, any clues earned, and the answer **only once the game is over**. |
+| `POST /api/guess` | `{ token, guess }` → the graded row, a new token, and the answer **only once the game is over**. |
+| `POST /api/clue` | `{ token }` → the one-liner, only if the token has 5+ guesses. |
 
 ### Anti-cheat
 
@@ -123,17 +124,17 @@ Block and Training are judgement calls no source states, and stay hand-assigned.
 ```
 app/
   page.tsx               server component: passes autocomplete names only
-  api/start, api/guess   signed-token game, graded on the server
+  api/start, api/guess, api/clue   signed-token game, graded on the server
   layout.tsx             fonts, metadata, analytics
   globals.css            the whole design system
   opengraph-image.tsx    the X / link-preview card (1200×630)
   icon.svg, apple-icon.tsx
-components/              Game (client state), Board, Clues, Console, Verdict, Help, StatsPanel, Dialog, Countdown
+components/              Game (client state), Board, OneLiner, Console, Verdict, Help, StatsPanel, Dialog, Countdown
 lib/
   architectures.ts       the deck (128 entries; tier 1 = can be the answer)
   types.ts               Arch schema
   shared.ts              data-free constants and types (the only game module the client imports)
-  game.ts                compare(), clues, secret daily order          [server only]
+  game.ts                compare(), one-liner, secret daily order      [server only]
   token.ts               HMAC-signed game state                        [server only]
   stats.ts               localStorage: saved day, streaks
 assets/                  static TTFs for the OG image

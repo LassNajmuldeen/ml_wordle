@@ -1,4 +1,4 @@
-import { CLUES, MAX_GUESSES } from "@/lib/shared";
+import { MAX_GUESSES, ONELINER_AFTER } from "@/lib/shared";
 
 /** First-visit explainer. One worked example does more than a legend. */
 export function Help({ onStart }: { onStart: () => void }) {
@@ -49,9 +49,8 @@ export function Help({ onStart }: { onStart: () => void }) {
       </ul>
 
       <p className="fine">
-        Clues unlock for free: the answer&rsquo;s <b>lineage</b> after {CLUES[0].after} guesses,
-        and a <b>one-liner</b> about it after {CLUES[1].after}. A new architecture every day at
-        midnight UTC.
+        Stuck after {ONELINER_AFTER} guesses? You can reveal a <b>one-liner</b> about the answer.
+        It&rsquo;s free, and only shows if you ask. A new architecture every day at midnight UTC.
       </p>
 
       <button className="go wide" onClick={onStart} autoFocus>

@@ -50,8 +50,9 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
   right, so the tiles (not the names) set the centre line. The input, clue
   cards and verdict match the tile grid's width. Below 1024px the name sits
   above its row.
-- **Clue cards**: two cards above the board, locked with a progress bar until
-  3 and 5 guesses, then showing the clue with a yellow border.
+- **One-liner card**: above the board. Locked with a progress bar until 5
+  guesses, then a "Reveal what it's known for" button; the text only appears
+  when clicked. Hidden once the game ends (the verdict shows the full blurb).
 - **Footer**: one line with the contact address, under a single rule.
 - **≤700px**: tiles shrink to ~48px and print short labels (`Attn`, `AR`,
   `FAIR`, `0.1–1B↓`). The latest wrong guess opens a detail panel with the
@@ -74,6 +75,6 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
 
 ## Components
 
-`Board` (tiles, phone detail panel), `Clues`, `Console` (combobox, guesses left), `Verdict`, `Help`, `StatsPanel`, `Dialog` (native
+`Board` (tiles, phone detail panel), `OneLiner`, `Console` (combobox, guesses left), `Verdict`, `Help`, `StatsPanel`, `Dialog` (native
 `<dialog>`), `Countdown`. Buttons come in three shapes: `.go` (coral, primary),
 `.ghost` (outlined), `.link` (underlined text).
