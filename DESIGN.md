@@ -58,8 +58,10 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
   `FAIR`, `0.1–1B↓`). The latest wrong guess opens a detail panel with the
   full values; the chevron on any row toggles it. Tiles never carry notes under
   the value.
-- **Verdict**: a raised card under the board with the result name, the answer,
-  its one-liner, **Post your score** (X intent) and Copy / Share.
+- **Verdict**: pops up as a dialog once the last tile of the final guess has
+  turned (result name, the answer, its one-liner, **Post your score**, Copy /
+  Share). Closing it leaves the same card under the board. Reloading a
+  finished day shows only the card, not the pop-up.
 
 ## Motion
 
@@ -68,8 +70,8 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
   animates.
 - **Hop**: on a win, the solved row's tiles jump in a wave once the last tile has
   turned.
-- **Burst**: 28 tile-coloured squares off the top of the verdict card, 1.1s, only
-  on a fresh win (not when reloading a solved day).
+- **Burst**: 28 tile-coloured squares in the result pop-up, 1.1s, only on a
+  win.
 - **Shake**: the input shakes on a name that isn't in the deck or was already tried.
 - `prefers-reduced-motion: reduce` collapses all of it and hides the burst.
 

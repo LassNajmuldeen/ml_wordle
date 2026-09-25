@@ -84,8 +84,12 @@ Progress and stats live in `localStorage`: the day's token and graded rows,
 and a streak / distribution record. Nothing else leaves the device except
 Vercel Web Analytics page views.
 
-**Changing the deck changes the daily order.** Adding or removing a tier-1 entry
-reshuffles every future day. Add entries as tier 2 if you don't want that.
+**Adding models without breaking anyone's game.** Each day draws its answer
+from the entries eligible that day. New answer-eligible entries get
+`from: <puzzle number>` set to a day that hasn't started yet (usually
+tomorrow), so today's answer never changes underneath someone mid-game. To
+retire an entry from the rotation but keep it guessable, set
+`until: <last puzzle number>`.
 
 ---
 
@@ -131,7 +135,7 @@ app/
   icon.svg, apple-icon.tsx
 components/              Game (client state), Board, OneLiner, Console, Verdict, Help, StatsPanel, Dialog, Countdown
 lib/
-  architectures.ts       the deck (128 entries; tier 1 = can be the answer)
+  architectures.ts       the deck (156 entries through Sept 2026; tier 1 = can be the answer)
   types.ts               Arch schema
   shared.ts              data-free constants and types (the only game module the client imports)
   game.ts                compare(), one-liner, secret daily order      [server only]

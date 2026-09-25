@@ -55,7 +55,7 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
   const [msg, setMsg] = useState("");
   const [shake, setShake] = useState(0);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [dialog, setDialog] = useState<"help" | "stats" | null>(null);
+  const [dialog, setDialog] = useState<"help" | "stats" | "result" | null>(null);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const index = useMemo(() => {
@@ -141,7 +141,15 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     setSettled(false);
     clearTimeout(settleTimer.current);
-    settleTimer.current = setTimeout(() => setSettled(true), reduce ? 0 : FLIP_STEP * 6 + FLIP_MS + 120);
+    settleTimer.current = setTimeout(
+      () => {
+        setSettled(true);
+        // The result pops up once the last tile has turned; closing it leaves
+        // the same card under the board.
+        if (answer) setDialog("result");
+      },
+      reduce ? 0 : FLIP_STEP * 6 + FLIP_MS + 120,
+    );
 
     if (mode === "daily" && daily != null) {
       saveDay(daily, next);
@@ -177,6 +185,19 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
   }
 
   const streak = stats && daily ? liveStreak(stats, daily) : 0;
+
+  const verdictProps = {
+    won,
+    rows,
+    guesses: guessCount,
+    puzzle: mode === "daily" ? daily : null,
+    streak: mode === "daily" ? streak : null,
+    onPractice: () => {
+      setDialog(null);
+      switchTo("practice");
+    },
+    onStats: () => setDialog("stats"),
+  };
 
   return (
     <>
@@ -247,19 +268,9 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
 
         <Board rows={rows} fresh={landed} total={MAX_GUESSES} flipStep={FLIP_STEP} />
 
-        {game?.answer && settled && (
+        {game?.answer && settled && dialog !== "result" && (
           <div className="col">
-            <Verdict
-              answer={game.answer}
-              won={won}
-              rows={rows}
-              guesses={guessCount}
-              puzzle={mode === "daily" ? daily : null}
-              streak={mode === "daily" ? streak : null}
-              celebrate={landed != null}
-              onPractice={() => switchTo("practice")}
-              onStats={() => setDialog("stats")}
-            />
+            <Verdict {...verdictProps} answer={game.answer} celebrate={false} />
           </div>
         )}
       </main>
@@ -270,6 +281,10 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
           <a href="mailto:lass.najm@gmail.com?subject=Zeroshot">lass.najm@gmail.com</a>
         </p>
       </footer>
+
+      <Dialog open={dialog === "result"} onClose={closeDialog} label="Result" className="dlg-result">
+        {game?.answer && <Verdict {...verdictProps} answer={game.answer} celebrate={won} />}
+      </Dialog>
 
       <Dialog open={dialog === "help"} onClose={closeDialog} title="How to play">
         <Help onStart={closeDialog} />

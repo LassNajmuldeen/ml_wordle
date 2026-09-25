@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Countdown } from "@/components/Countdown";
 import { FIELDS, MAX_GUESSES, rank, type Answer, type GuessResult } from "@/lib/shared";
 
@@ -23,19 +23,17 @@ export function Verdict({
   /** null in practice */
   puzzle: number | null;
   streak: number | null;
-  /** true when the game ended just now, false when restored from a reload */
+  /** play the burst: only in the pop-up, only on a win */
   celebrate: boolean;
   onPractice: () => void;
   onStats: () => void;
 }) {
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
   const [canShare, setCanShare] = useState(false);
-  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setCanShare(typeof navigator.share === "function" && matchMedia("(pointer: coarse)").matches);
-    if (celebrate) ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [celebrate]);
+  }, []);
 
   const text = () => shareText(rows, won, guesses, puzzle);
 
@@ -61,8 +59,8 @@ export function Verdict({
   }
 
   return (
-    <section className="verdict" ref={ref} data-win={won} aria-live="polite">
-      {won && celebrate && <Burst />}
+    <section className="verdict" data-win={won} aria-live="polite">
+      {celebrate && <Burst />}
       <p className="rank">{rank(won, guesses)}</p>
       <p className="score">
         {won ? (
