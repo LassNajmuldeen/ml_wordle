@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_GUESSES } from "./game";
+import { MAX_GUESSES, type Answer, type Clue, type GuessResult } from "./shared";
 
 /** Daily record, kept in the browser. Nothing leaves the device. */
 export type Stats = {
@@ -66,24 +66,30 @@ export function recordResult(puzzle: number, won: boolean, guesses: number): Sta
 }
 
 // ── saved daily ─────────────────────────────────────────────────────────────
-/** Moves, not graded rows: grading is re-run on load, so a logic fix reaches old games. */
-export type Move = { kind: "guess"; name: string } | { kind: "clue" };
+/** One day's game: the server-signed token plus what it has already told us. */
+export type SavedGame = {
+  token: string;
+  rows: GuessResult[];
+  clues: Clue[];
+  answer: Answer | null;
+};
 
-const dayKey = (n: number) => `zeroshot:v2:day:${n}`;
+// v3: the daily order changed when it moved behind the server secret.
+const dayKey = (n: number) => `zeroshot:v3:day:${n}`;
 
-export function loadDay(n: number): Move[] {
+export function loadDay(n: number): SavedGame | null {
   try {
     const raw = localStorage.getItem(dayKey(n));
-    const moves = raw ? (JSON.parse(raw) as Move[]) : [];
-    return Array.isArray(moves) ? moves : [];
+    const s = raw ? (JSON.parse(raw) as SavedGame) : null;
+    return s && typeof s.token === "string" && Array.isArray(s.rows) ? s : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function saveDay(n: number, moves: Move[]) {
+export function saveDay(n: number, game: SavedGame) {
   try {
-    localStorage.setItem(dayKey(n), JSON.stringify(moves));
+    localStorage.setItem(dayKey(n), JSON.stringify(game));
   } catch {}
 }
 

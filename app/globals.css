@@ -108,7 +108,7 @@ button:disabled { cursor: default; }
 /* ── top bar ─────────────────────────────────────────────────────────────── */
 .bar {
   display: grid; grid-template-columns: 56px 1fr 56px; align-items: center;
-  max-width: 60rem; margin: 0 auto; padding: 12px 16px 14px;
+  max-width: calc(52rem + 32px); margin: 0 auto; padding: 12px 16px 14px;
 }
 .bar > .icon:last-child { justify-self: end; }
 
@@ -147,14 +147,16 @@ button:disabled { cursor: default; }
 .streak::before { content: "🔥"; font-family: initial; margin-right: 2px; }
 
 /* ── shell ───────────────────────────────────────────────────────────────── */
-.shell { max-width: 60rem; margin: 0 auto; padding: 8px 16px 96px; }
+.shell { max-width: calc(52rem + 2 * var(--gutter) + 32px); margin: 0 auto; padding: 8px 16px 64px; }
+/* everything that isn't the board lines up with the tile grid, not the names */
+.col { margin: 0 var(--gutter); }
 
 @media (min-width: 1024px) {
   :root { --gutter: 9.5rem; }
 }
 
 /* ── console ─────────────────────────────────────────────────────────────── */
-.console { margin: 8px 0 20px; padding-left: var(--gutter); }
+.console { margin: 8px 0 16px; }
 .combo { position: relative; }
 
 .field {
@@ -203,17 +205,36 @@ button:disabled { cursor: default; }
 .msg[data-error="true"] { color: var(--accent-hi); }
 .msg .num { color: var(--ink); font-weight: 700; }
 
-.cluebtn {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 34px; padding: 0 12px;
-  border: 1px dashed var(--line-2); border-radius: 999px;
-  background: transparent; color: var(--ink-2);
-  font-size: 0.8125rem; font-weight: 600;
-  transition: border-color 160ms var(--ease), color 160ms var(--ease), background 160ms var(--ease);
+
+/* ── clues ───────────────────────────────────────────────────────────────── */
+.clues { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.cluecard {
+  position: relative; overflow: hidden;
+  padding: 12px 14px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--raise);
 }
-.cluebtn:hover { border-color: var(--near); color: var(--ink); background: oklch(0.84 0.15 88 / 0.06); }
-.cluebtn .cost { color: var(--ink-3); font-weight: 500; }
-.cluebtn .cost::before { content: "· "; }
+.cluecard[data-open="true"] { border-color: oklch(0.84 0.15 88 / 0.45); animation: rise 360ms var(--ease) backwards; }
+.cc-head { display: flex; justify-content: space-between; align-items: baseline; }
+.cc-k { font-size: 0.8125rem; font-weight: 700; color: var(--ink-2); }
+.cluecard[data-open="true"] .cc-k { color: var(--near); }
+.cc-n { font-family: var(--font-mono), monospace; font-size: 0.75rem; color: var(--ink-3); }
+.cc-text { margin: 6px 0 0; font-size: 0.9375rem; line-height: 1.4; text-wrap: pretty; }
+.cc-lock { margin: 6px 0 0; font-size: 0.8125rem; color: var(--ink-3); }
+.cc-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line); }
+.cc-bar span { display: block; height: 100%; background: var(--near); transition: width 400ms var(--ease); }
+
+/* ── footer ──────────────────────────────────────────────────────────────── */
+.foot {
+  max-width: calc(52rem + 32px); margin: 0 auto; padding: 24px 16px 40px;
+  border-top: 1px solid var(--line); text-align: center;
+}
+.foot p { margin: 0; color: var(--ink-3); font-size: 0.875rem; text-wrap: balance; }
+.foot a {
+  color: var(--ink-2); font-weight: 600;
+  text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 4px;
+  transition: color 160ms var(--ease), text-decoration-color 160ms var(--ease);
+}
+.foot a:hover { color: var(--accent-hi); text-decoration-color: var(--accent); }
 
 /* ── board ───────────────────────────────────────────────────────────────── */
 .board { perspective: 900px; }
@@ -222,7 +243,8 @@ button:disabled { cursor: default; }
 .row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; }
 .row:not(.blank):not(.headrow) > .name { margin-bottom: 6px; }
 @media (min-width: 1024px) {
-  .row { grid-template-columns: var(--gutter) minmax(0, 1fr); }
+  /* an empty column on the right mirrors the names, so the tiles sit dead centre */
+  .row { grid-template-columns: var(--gutter) minmax(0, 1fr) var(--gutter); }
   .row:not(.blank):not(.headrow) > .name { margin-bottom: 0; padding-right: 16px; text-align: right; }
 }
 
@@ -261,10 +283,6 @@ button:disabled { cursor: default; }
 .tile.empty { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line); min-height: 68px; }
 .tile .short { display: none; }
 .tile .arrow { margin-left: 3px; font-weight: 700; }
-.tile .sub {
-  margin-top: 3px; font-family: var(--font-sans), sans-serif;
-  font-size: 0.6875rem; font-weight: 600; opacity: 0.85;
-}
 .tile .lab { display: none; }
 
 /* the flip: blank on the way up, coloured on the way down */
@@ -301,23 +319,13 @@ button:disabled { cursor: default; }
 .row.fresh .nm { animation: rise 300ms var(--ease) backwards; }
 @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
 
-/* clue rows */
-.cluerow .clue {
-  margin: 0; padding: 14px 16px;
-  border: 1.5px dashed oklch(0.84 0.15 88 / 0.45); border-radius: var(--radius);
-  background: oklch(0.84 0.15 88 / 0.06);
-  color: var(--ink); font-size: 0.9375rem; line-height: 1.45;
-}
-.cluerow .k { color: var(--near); font-weight: 700; margin-right: 4px; }
-.cluerow .nm { color: var(--near); font-size: 0.875rem; }
-.cluerow.fresh .clue { animation: rise 360ms var(--ease) backwards; }
 
 .details { display: none; }
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */
 .verdict {
   position: relative;
-  margin: 32px 0 0 var(--gutter);
+  margin: 32px 0 0;
   padding: 32px 24px 28px;
   border-radius: 20px; background: var(--raise);
   text-align: center;
@@ -455,7 +463,7 @@ dialog::backdrop { background: oklch(0.12 0.02 275 / 0.72); }
   .more[aria-expanded="true"] svg { transform: rotate(180deg); }
 
   .tile, .tile.empty { min-height: 48px; padding: 4px 2px; border-radius: 7px; font-size: 0.6875rem; line-height: 1.2; }
-  .tile .full, .tile .sub { display: none; }
+  .tile .full { display: none; }
   .tile .short { display: inline; }
   .tile .arrow { margin-left: 1px; }
 
@@ -467,13 +475,13 @@ dialog::backdrop { background: oklch(0.12 0.02 275 / 0.72); }
   .details div { display: grid; grid-template-columns: 74px 1fr; gap: 8px; padding: 5px 12px; font-size: 0.8125rem; }
   .details dt { color: var(--ink-3); font-weight: 600; }
   .details dd { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
-  .details div::before { content: none; }
   .details div[data-state="exact"] dd { color: oklch(0.8 0.14 152); font-weight: 700; }
   .details div[data-state="partial"] dd { color: var(--near); font-weight: 700; }
-  .details .why { color: var(--ink-3); font-weight: 500; }
 
-  .cluerow .clue { padding: 10px 12px; font-size: 0.875rem; }
 
+  .clues { gap: 6px; margin-bottom: 18px; }
+  .cluecard { padding: 10px 11px 12px; }
+  .cc-text { font-size: 0.875rem; }
   .verdict { margin-top: 24px; padding: 28px 16px 22px; border-radius: 16px; }
   .rank { font-size: 2.25rem; }
   .answer { font-size: 1.5rem; }

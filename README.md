@@ -18,63 +18,73 @@ Each guess returns a row of seven tiles:
 
 | Column | Green | Yellow | Grey |
 |---|---|---|---|
-| **Year** | same year | · | anything else, with ↑/↓ toward the answer |
-| **Modality** | identical set | sets overlap (the tile names what's shared) | disjoint |
-| **Block** | same core op | same family (`Recurrence` ↔ `State space`) | different family |
-| **Training** | same objective | same family (`Masked` ↔ `Autoregressive` = self-supervised) | different family |
-| **Lab** | same lab | shares one lab, or a sibling (Google ↔ DeepMind, FAIR ↔ Meta AI) | neither |
-| **Size** | same order-of-magnitude bucket | · | anything else, with ↑/↓ toward the answer |
-| **Weights** | same | one step apart (Open ↔ Partial ↔ Closed) | Open vs Closed |
+| **Year** | same year | · | different, with ↑/↓ toward the answer |
+| **Modality** | identical set | the sets overlap | disjoint |
+| **Block** | same core op | · | different |
+| **Training** | same objective | · | different |
+| **Lab** | same lab | a joint lab shares one (`CMU / Google Brain` vs `Google Brain`) | different |
+| **Size** | same order-of-magnitude bucket | · | different, with ↑/↓ toward the answer |
+| **Weights** | same (Open / Partial / Closed) | · | different |
 
-**Hatched** means the Size can't be compared: closed labs never published a
-count (GPT-4, Gemini, Claude), and SVMs and random forests don't have one in
-the usual sense. The two are labelled differently (`undisclosed` vs
-`non-parametric`) and only match their own kind.
+**Yellow is rare on purpose.** A green on any column is already a lot of
+information, so yellow only means a genuine partial overlap between two lists.
+There are no "same family" or "sibling lab" near-misses and no explanatory
+notes under the values.
 
-Year and Size have no yellow on purpose: the arrow already says which way to
-move, and a "close" band on top of it was the single most revealing signal on
-the board.
+**Hatched** means Size can't be compared: closed labs never published a count
+(GPT-4, Gemini, Claude), and SVMs and random forests don't have one. The two are
+labelled `undisclosed` and `non-parametric` and only match their own kind.
 
-**Clues.** After the first guess you can spend a guess on a clue: first the
-answer's lineage ("Builds on DDPM, CLIP"), then its one-line description with
-its own name blanked out. Two clues, one guess each.
+**Clues unlock for free** as you guess: the answer's lineage after 3 guesses
+("Builds on DDPM, CLIP"), and its one-line description, with its own name
+blanked out, after 5.
 
 **Results** are named for how quickly you got there: 1 guess is *Zero-shot*,
 2 *One-shot*, 3 *Few-shot*, then *Converged*, *Fine-tuned*, and so on. A loss
-is *Diverged*. The share text carries that name plus the usual emoji grid, and
-the verdict has a one-tap **Post your score** to X.
+is *Diverged*. The verdict has a one-tap **Post your score** to X.
 
 ---
 
 ## How it runs
 
-The whole game is a static page. The deck, the grading and the daily pick all
-live in the client bundle, so there are no API routes, no database and nothing
-to scale if a post goes wide. Vercel serves it from the CDN.
+The page itself is static. Grading happens in two route handlers, so the deck
+and the daily order never reach the browser; the page only ships names,
+aliases and years for autocomplete.
+
+| Route | Does |
+|---|---|
+| `POST /api/start` | `{ mode: "daily" \| "practice" }` → a signed token for a new game. The server picks the day, not the browser's clock. |
+| `POST /api/guess` | `{ token, guess }` → the graded row, a new token, any clues earned, and the answer **only once the game is over**. |
+
+### Anti-cheat
+
+- **The answer never ships.** No blurb, property or lab data is in the client
+  bundle. Check with `grep -r Reparameterisation .next/static` after a build.
+- **The order is secret.** The daily shuffle is seeded from `ZEROSHOT_SECRET`,
+  not from the source. The repo is public, so a seed in the code would let
+  anyone compute every future answer.
+- **The game can't be forged.** State lives in an HMAC-signed token (puzzle
+  number + guesses). Editing it to claim the game is over fails the signature,
+  so the answer can't be revealed early. Repeating a guess is refused.
+
+What it doesn't stop: someone playing the same day in a private window to
+probe. That costs them a real game each time, which is the same trade every
+server-graded daily makes.
+
+**`ZEROSHOT_SECRET` must be set** in Vercel (Production and Preview) before
+deploying; the API refuses to run in production without it. Locally a dev
+secret is used. Changing the secret reshuffles every day's answer.
 
 ```bash
-npx vercel          # preview
-npx vercel --prod   # production
+npx vercel env add ZEROSHOT_SECRET production
 ```
 
-The daily answer is `ORDER[(n - 1) % ORDER.length]`, where `ORDER` is a
-fixed-seed shuffle of the tier-1 entries and `n` counts UTC days since
-2026-01-01. Same answer for everyone, rolling over at midnight UTC.
-
-**Why not grade on the server?** An earlier version did, to keep the answer out
-of the browser. It didn't: `/api/reveal` returned the answer to anyone who
-asked, and `/api/guess` is an oracle anyway. Wordle ships its answer list in
-the bundle too. For a free daily puzzle, the round trip per guess wasn't buying
-anything.
-
-Progress and stats live in `localStorage`: the day's moves (guess names and
-clues, re-graded on load so logic fixes reach saved games), and a streak /
-distribution record. Nothing leaves the device except Vercel Web Analytics page
-views, which need **Analytics** switched on in the Vercel project to record.
+Progress and stats live in `localStorage`: the day's token and graded rows,
+and a streak / distribution record. Nothing else leaves the device except
+Vercel Web Analytics page views.
 
 **Changing the deck changes the daily order.** Adding or removing a tier-1 entry
-reshuffles every future day. Add entries as tier 2 if you don't want that, or
-accept that one day's answer moves.
+reshuffles every future day. Add entries as tier 2 if you don't want that.
 
 ---
 
@@ -112,16 +122,19 @@ Block and Training are judgement calls no source states, and stay hand-assigned.
 
 ```
 app/
-  page.tsx               game state: moves → graded rows, daily/practice
+  page.tsx               server component: passes autocomplete names only
+  api/start, api/guess   signed-token game, graded on the server
   layout.tsx             fonts, metadata, analytics
   globals.css            the whole design system
   opengraph-image.tsx    the X / link-preview card (1200×630)
   icon.svg, apple-icon.tsx
-components/              Board, Console, Verdict, Help, StatsPanel, Dialog, Countdown
+components/              Game (client state), Board, Clues, Console, Verdict, Help, StatsPanel, Dialog, Countdown
 lib/
   architectures.ts       the deck (128 entries; tier 1 = can be the answer)
-  types.ts               Arch schema + Block / Training families
-  game.ts                compare(), clues, daily pick, autocomplete
+  types.ts               Arch schema
+  shared.ts              data-free constants and types (the only game module the client imports)
+  game.ts                compare(), clues, secret daily order          [server only]
+  token.ts               HMAC-signed game state                        [server only]
   stats.ts               localStorage: saved day, streaks
 assets/                  static TTFs for the OG image
 scripts/enrich.mts       the audit pipeline

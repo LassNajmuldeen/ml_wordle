@@ -1,3 +1,4 @@
+import { norm } from "./shared";
 import type { Arch } from "./types";
 
 // Curated deck. `params` = flagship / most-cited variant, in millions.
@@ -158,11 +159,5 @@ export const NAME_INDEX: Map<string, Arch> = (() => {
   return m;
 })();
 
-export function norm(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[·‑–—]/g, "-")
-    .replace(/[^a-z0-9]+/g, "");
-}
 
 export const ANSWER_POOL = ARCHITECTURES.filter((a) => a.tier === 1);

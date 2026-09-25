@@ -1,28 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Row } from "@/components/Board";
 import { Countdown } from "@/components/Countdown";
-import { FIELDS, MAX_GUESSES, bucketLabel, rank } from "@/lib/game";
-import type { Arch } from "@/lib/types";
+import { FIELDS, MAX_GUESSES, rank, type Answer, type GuessResult } from "@/lib/shared";
 
 const MARK = { exact: "🟩", partial: "🟨", miss: "⬛", unknown: "⬜" } as const;
 
-function shareText(rows: Row[], won: boolean, guesses: number, puzzle: number | null) {
+function shareText(rows: GuessResult[], won: boolean, guesses: number, puzzle: number | null) {
   const score = won ? `${guesses}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
   const head = `Zeroshot ${puzzle ? `#${puzzle}` : "practice"} · ${score} · ${rank(won, guesses)}`;
-  const grid = rows
-    .map((r) => (r.kind === "clue" ? "💡" : FIELDS.map((f) => MARK[r.cells[f].state]).join("")))
-    .join("\n");
+  const grid = rows.map((r) => FIELDS.map((f) => MARK[r.cells[f].state]).join("")).join("\n");
   return `${head}\n\n${grid}\n\n${location.origin}`;
 }
 
 export function Verdict({
   answer, won, rows, guesses, puzzle, streak, celebrate, onPractice, onStats,
 }: {
-  answer: Arch;
+  answer: Answer;
   won: boolean;
-  rows: Row[];
+  rows: GuessResult[];
   guesses: number;
   /** null in practice */
   puzzle: number | null;
@@ -85,8 +81,8 @@ export function Verdict({
 
       <h2 className="answer">{answer.name}</h2>
       <p className="facts">
-        {answer.year} · {answer.org} · {answer.mechanism} · {bucketLabel(answer)}
-        {answer.params != null ? " params" : ""} · {answer.weights.toLowerCase()} weights
+        {answer.year} · {answer.org} · {answer.mechanism} · {answer.size} ·{" "}
+        {answer.weights.toLowerCase()} weights
       </p>
       <p className="blurb">{answer.blurb}</p>
       {answer.parents.length > 0 && <p className="from">Builds on {answer.parents.join(", ")}</p>}
