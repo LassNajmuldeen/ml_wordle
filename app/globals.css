@@ -207,9 +207,8 @@ button:disabled { cursor: default; }
 
 
 /* ── clues ───────────────────────────────────────────────────────────────── */
-.clues { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
 .cluecard {
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; margin-bottom: 24px;
   padding: 12px 14px 14px; border-radius: 12px;
   border: 1px solid var(--line); background: var(--raise);
 }
@@ -220,6 +219,13 @@ button:disabled { cursor: default; }
 .cc-n { font-family: var(--font-mono), monospace; font-size: 0.75rem; color: var(--ink-3); }
 .cc-text { margin: 6px 0 0; font-size: 0.9375rem; line-height: 1.4; text-wrap: pretty; }
 .cc-lock { margin: 6px 0 0; font-size: 0.8125rem; color: var(--ink-3); }
+.cc-reveal {
+  display: inline-flex; align-items: center; height: 34px; margin-top: 8px; padding: 0 14px;
+  border: 1px dashed oklch(0.84 0.15 88 / 0.55); border-radius: 999px;
+  background: transparent; color: var(--near); font-size: 0.8125rem; font-weight: 700;
+  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+}
+.cc-reveal:hover:not(:disabled) { background: oklch(0.84 0.15 88 / 0.08); border-color: var(--near); }
 .cc-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line); }
 .cc-bar span { display: block; height: 100%; background: var(--near); transition: width 400ms var(--ease); }
 
@@ -479,8 +485,7 @@ dialog::backdrop { background: oklch(0.12 0.02 275 / 0.72); }
   .details div[data-state="partial"] dd { color: var(--near); font-weight: 700; }
 
 
-  .clues { gap: 6px; margin-bottom: 18px; }
-  .cluecard { padding: 10px 11px 12px; }
+  .cluecard { padding: 10px 11px 12px; margin-bottom: 18px; }
   .cc-text { font-size: 0.875rem; }
   .verdict { margin-top: 24px; padding: 28px 16px 22px; border-radius: 16px; }
   .rank { font-size: 2.25rem; }

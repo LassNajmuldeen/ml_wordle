@@ -9,10 +9,7 @@ import {
   norm,
   type Answer,
   type Cell,
-  type Clue,
-  type ClueId,
   type GuessResult,
-  CLUES,
 } from "./shared";
 import type { Arch, Mechanism, Modality, Paradigm } from "./types";
 
@@ -143,25 +140,15 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
   };
 }
 
-// ── clues ───────────────────────────────────────────────────────────────────
-function clueText(a: Arch, id: ClueId): string {
-  if (id === "lineage") {
-    return a.parents.length
-      ? `Builds on ${a.parents.join(", ")}`
-      : "No listed ancestor. It started a line of its own.";
-  }
-  // The answer's own names are blanked so the clue can't just hand it over.
+// ── clue ────────────────────────────────────────────────────────────────────
+/** The answer's one-liner, with its own names blanked so it can't hand it over. */
+export function oneLiner(a: Arch): string {
   let s = a.blurb;
   for (const n of [a.name, ...(a.aliases ?? [])].sort((x, y) => y.length - x.length)) {
     const esc = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     s = s.replace(new RegExp(`(?<![\\p{L}\\p{N}])${esc}(?![\\p{L}\\p{N}])`, "giu"), "▇▇▇");
   }
   return s;
-}
-
-/** The clues this many guesses has earned. */
-export function cluesFor(a: Arch, guesses: number): Clue[] {
-  return CLUES.filter((c) => guesses >= c.after).map((c) => ({ id: c.id, text: clueText(a, c.id) }));
 }
 
 export function answerCard(a: Arch): Answer {

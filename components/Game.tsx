@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Board } from "@/components/Board";
-import { Clues } from "@/components/Clues";
 import { Console } from "@/components/Console";
 import { Dialog } from "@/components/Dialog";
 import { Help } from "@/components/Help";
+import { OneLiner } from "@/components/OneLiner";
 import { StatsPanel } from "@/components/StatsPanel";
 import { Verdict } from "@/components/Verdict";
-import { MAX_GUESSES, norm, type Answer, type Candidate, type Clue, type GuessResult } from "@/lib/shared";
+import { MAX_GUESSES, norm, type Answer, type Candidate, type GuessResult } from "@/lib/shared";
 import {
   hasSeenHelp,
   liveStreak,
@@ -26,7 +26,7 @@ const FLIP_STEP = 90;
 const FLIP_MS = 420;
 
 type Start = { n: number | null; token: string };
-type GuessReply = { row: GuessResult; token: string; clues: Clue[]; answer: Answer | null };
+type GuessReply = { row: GuessResult; token: string; answer: Answer | null };
 
 async function post<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; status: number }> {
   try {
@@ -41,7 +41,7 @@ async function post<T>(url: string, body: unknown): Promise<{ ok: true; data: T 
   }
 }
 
-const fresh = (token: string): SavedGame => ({ token, rows: [], clues: [], answer: null });
+const fresh = (token: string): SavedGame => ({ token, rows: [], oneLiner: null, answer: null });
 
 export function Game({ candidates }: { candidates: Candidate[] }) {
   const [daily, setDaily] = useState<number | null>(null);
@@ -130,8 +130,8 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
       return reject(res.status === 0 ? "Couldn't reach the server. Try again." : "That guess didn't go through. Reload and try again.");
     }
 
-    const { row, token, clues, answer } = res.data;
-    const next: SavedGame = { token, rows: [...game.rows, row], clues, answer };
+    const { row, token, answer } = res.data;
+    const next: SavedGame = { ...game, token, rows: [...game.rows, row], answer };
     setGame(next);
     setLanded(next.rows.length - 1);
     setInput("");
@@ -147,6 +147,17 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
       saveDay(daily, next);
       if (answer) setStats(recordResult(daily, row.correct, next.rows.length));
     }
+  }
+
+  async function revealOneLiner() {
+    if (!game || busy) return;
+    setBusy(true);
+    const res = await post<{ text: string }>("/api/clue", { token: game.token });
+    setBusy(false);
+    if (!res.ok) return setMsg("Couldn't load the clue. Try again.");
+    const next = { ...game, oneLiner: res.data.text };
+    setGame(next);
+    if (mode === "daily" && daily != null) saveDay(daily, next);
   }
 
   function switchTo(next: "daily" | "practice") {
@@ -224,7 +235,14 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
               disabled={!game || busy}
             />
           )}
-          <Clues clues={game?.clues ?? []} guesses={guessCount} />
+          {!over && (
+            <OneLiner
+              text={game?.oneLiner ?? null}
+              guesses={guessCount}
+              busy={busy}
+              onReveal={revealOneLiner}
+            />
+          )}
         </div>
 
         <Board rows={rows} fresh={landed} total={MAX_GUESSES} flipStep={FLIP_STEP} />
@@ -248,7 +266,7 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
 
       <footer className="foot">
         <p>
-          Made by Lass. Found a wrong fact, or want a model added?{" "}
+          Found a wrong fact, or want a model added?{" "}
           <a href="mailto:lass.najm@gmail.com?subject=Zeroshot">lass.najm@gmail.com</a>
         </p>
       </footer>

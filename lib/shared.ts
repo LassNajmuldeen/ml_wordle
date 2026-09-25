@@ -48,13 +48,8 @@ export type GuessResult = {
   cells: Record<Field, Cell>;
 };
 
-/** Clues unlock for free once you've made this many guesses. */
-export const CLUES = [
-  { id: "lineage", label: "Lineage", after: 3 },
-  { id: "blurb", label: "One-liner", after: 5 },
-] as const;
-export type ClueId = (typeof CLUES)[number]["id"];
-export type Clue = { id: ClueId; text: string };
+/** The one-liner clue can be revealed, if the player chooses, after this many guesses. */
+export const ONELINER_AFTER = 5;
 
 /** What autocomplete needs, and nothing that could grade a guess. */
 export type Candidate = { name: string; aliases: string[]; year: number };

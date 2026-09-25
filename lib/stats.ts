@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_GUESSES, type Answer, type Clue, type GuessResult } from "./shared";
+import { MAX_GUESSES, type Answer, type GuessResult } from "./shared";
 
 /** Daily record, kept in the browser. Nothing leaves the device. */
 export type Stats = {
@@ -70,7 +70,8 @@ export function recordResult(puzzle: number, won: boolean, guesses: number): Sta
 export type SavedGame = {
   token: string;
   rows: GuessResult[];
-  clues: Clue[];
+  /** set once the player chooses to reveal it */
+  oneLiner: string | null;
   answer: Answer | null;
 };
 
