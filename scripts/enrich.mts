@@ -130,7 +130,7 @@ async function audit(a: Arch): Promise<Finding[]> {
   const model = await hf(a.name);
   if (model?.safetensors?.total) {
     const millions = model.safetensors.total / 1e6;
-    const same = bucket(millions) === bucket(a.params);
+    const same = bucket({ ...a, params: millions }) === bucket(a);
     out.push({
       name: a.name,
       field: "params",

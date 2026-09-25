@@ -42,3 +42,4 @@ next-env.d.ts
 
 # audit artifacts
 /data/enrichment-report.json
+.gstack/

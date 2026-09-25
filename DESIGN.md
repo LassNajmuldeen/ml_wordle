@@ -2,111 +2,74 @@
 
 ## Theme
 
-One dark surface. The page is near-black end to end, and the graded tiles are the
-only colour and the only hard edges on it. There is exactly one rule on the whole
-page, under the top bar. Everything that used to be chrome (a lede, a how-to-play
-block, a footer, a bordered verdict card) is either gone or moved into a dialog.
+Ink-indigo ground, coral for anything you press, and the tiles carrying the
+rest. Dark because the board is a field of saturated tiles and it reads best on
+a dark ground, and because a dark grid screenshot stands out in an X feed.
 
-Single theme, no light variant: the board is a field of saturated tiles and it
-only holds together on black.
-
-Colour strategy: **restrained.** Neutral dark ground, no accent hue at all.
-Primary buttons are near-white on black. All saturation is reserved for grading.
+Colour strategy: **restrained plus one accent.** Tinted neutrals toward hue 275;
+coral (`--accent`) only on primary buttons, focus rings, the `0` in the
+wordmark and the streak count. All other saturation belongs to the tiles.
 
 ## Color
 
-| Token | Value | Role |
-|---|---|---|
-| `--bg` | `#0a0a0b` | the page |
-| `--raise` | `#17171a` | input, hint row, dialogs |
-| `--line` | `rgba(255,255,255,.09)` | the one rule, and borders |
-| `--ink` | `#f2f2f0` | primary text, primary button fill |
-| `--ink-2` | `#a3a3a1` | prose |
-| `--ink-3` | `#8b8b89` | labels, counts |
+All tokens are OKLCH in `app/globals.css`. Hex twins (for the OG image, which
+can't parse OKLCH) are in `app/opengraph-image.tsx`.
 
-Grading tiles:
+| Token | Value | Hex | Role |
+|---|---|---|---|
+| `--bg` | `oklch(0.19 0.018 275)` | `#11131c` | page |
+| `--raise` | `oklch(0.235 0.022 275)` | `#1b1d29` | input, dialogs, verdict |
+| `--ink` | `oklch(0.97 0.004 275)` | `#f4f5f8` | primary text |
+| `--ink-2` | `oklch(0.82 0.014 275)` | `#c1c4cd` | prose |
+| `--ink-3` | `oklch(0.71 0.02 275)` | `#9ea1ae` | labels |
+| `--accent` | `oklch(0.72 0.165 22)` | `#fb7475` | primary action |
 
-| State | Background | Text | Contrast | Greyscale L |
-|---|---|---|---|---|
-| Exact | `#20623f` | `#eefaf2` | 6.80 | 0.094 |
-| Near | `#a8811a` | `#1c1403` | 5.06 | 0.241 |
-| Wrong | `#4a2427` | `#f0c3bd` | 8.42 | 0.029 |
-| Not comparable | transparent | `#8b8b89` | 5.80 | — |
-| Unplayed | transparent, 1px `rgba(255,255,255,.055)` | — | — | — |
+| Tile | Fill | Text | Contrast |
+|---|---|---|---|
+| Exact | `oklch(0.53 0.13 152)` | near-white | 4.97 |
+| Near | `oklch(0.84 0.15 88)` | dark amber | 10.1 |
+| Miss | `oklch(0.33 0.022 275)` | `--miss-ink` | 9.07 |
+| Can't compare | miss + 135° hatching | `--ink-2` | 7.0 |
 
-Text on the ground: ink 17.65, ink-2 7.83, ink-3 5.80. All pass AA.
-
-**Colour is not the only channel.** The three fills are ordered and separated in
-greyscale (0.029 / 0.094 / 0.241), so the board survives monochrome and
-red-green colour blindness. Near-matches are also the only tiles carrying a
-sub-line, Year and Scale add an arrow, and every tile announces its state as
-text to screen readers.
-
-Every tile carries `inset 0 0 0 1px rgba(255,255,255,.07)`, because the wrong
-tile sits at only 1.48:1 against the ground and would otherwise have no edge.
-
-## Layout
-
-A single bar, then the board. Nothing else above the fold.
-
-- **Bar**: help icon, centred wordmark with the puzzle number beneath it, mode
-  buttons and a stats icon. One `1px` bottom rule, the only rule on the page.
-- **Board**: seven equal tile columns at `76px` minimum height. The tile grid is
-  the fixed element; nothing is allowed to narrow it. Above 1100px the guess name
-  moves out into an 11.5rem gutter to the left of the grid, and the input, hint
-  rows and verdict shift by the same offset so everything stays aligned with the
-  tiles. Below 1100px the gutter collapses to zero and the name sits above its
-  own row instead. Tile width is identical either way. Unplayed attempts render
-  as outlined rows, so the board has its full shape before the first guess.
-- **Below 760px**: the header row disappears, tiles reflow at
-  `minmax(96px, 1fr)` and print their property name inside. No horizontal
-  scrolling at any width.
-- How to play and Statistics are native `<dialog>` elements: real focus trap,
-  real Esc, no library.
-
-## Motion at completion
-
-Winning is the one moment the interface reacts. The solved row swaps its
-entrance for `land`: the same 45ms stagger, but each tile overshoots to 1.035
-and lifts 3px before settling, 620ms end to end. It runs once, on the row that
-just won, and collapses to nothing under `prefers-reduced-motion`. Nothing else
-on the page celebrates.
+Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
 
 ## Typography
 
-Two families.
-
-- **Source Serif 4**, 600 — the wordmark and the revealed answer. Nothing else.
-- **DM Sans** — every other piece of text, with `tabular-nums` on tile values so
-  years and size brackets line up in their columns.
-
-Fixed rem scale, not fluid: 0.5625 / 0.625 / 0.6875 / 0.75 / 0.8125 / 0.875 /
-0.9375 / 1.5 / 2. Product UI is read at consistent DPI; a clamped heading that
-shrinks with the viewport looks worse, not better.
+- **Bricolage Grotesque** for everything readable: wordmark (800), headings,
+  tile values, body.
+- **JetBrains Mono** for numbers that should line up or feel like data: the `0`
+  in the wordmark, years in suggestions, the countdown, the facts line, stats
+  counts.
 
 ## Layout
 
-Single column, `max-width: 60rem`. Rhythm on a 4px base: 4 / 8 / 12 / 20 / 32 /
-52 / 80.
-
-- **Board**: a name column (`11.5rem`) plus seven equal tile columns, 6px gutter,
-  10px radius. Column names sit once above the first row.
-- **Below 760px**: the header row disappears and each guess becomes a block — the
-  architecture name, then the tiles reflowing at `minmax(92px, 1fr)` with their
-  property name printed inside. No horizontal scrolling at any width.
-- Rounded corners throughout: 6px chips, 10px tiles and buttons, 14px cards.
+- **Bar**: help · wordmark with a Daily / Practice switch under it · stats (with
+  a 🔥 streak count once you have one). No rule underneath.
+- **Board**: seven equal tile columns. At ≥1024px the guess name sits in a 9.5rem
+  gutter to the left, and the input and verdict share that offset. Below that,
+  the name sits above its row.
+- **≤700px**: tiles shrink to ~48px and print short labels (`Attn`, `AR`,
+  `FAIR`, `0.1–1B↓`). The latest non-winning guess opens a detail panel with
+  the full values and why each yellow is yellow; the chevron on any row toggles
+  it.
+- **Verdict**: a raised card under the board with the result name, the answer,
+  its one-liner, **Post your score** (X intent) and Copy / Share.
 
 ## Motion
 
-- Tiles: 260ms `cubic-bezier(0.22, 1, 0.36, 1)`, opacity plus a 0.94 → 1 scale,
-  staggered 45ms across the row. Only the row that just landed animates; earlier
-  rows are static, so the board doesn't replay itself on every render.
-- Buttons and inputs: 160ms colour and border transitions.
-- `prefers-reduced-motion: reduce` collapses all of it to instant.
+- **Flip**: each tile of the new row turns on the X axis, blank on the way up and
+  coloured on the way down. 420ms, staggered 90ms. Only the row that just landed
+  animates.
+- **Hop**: on a win, the solved row's tiles jump in a wave once the last tile has
+  turned.
+- **Burst**: 28 tile-coloured squares off the top of the verdict card, 1.1s, only
+  on a fresh win (not when reloading a solved day).
+- **Shake**: the input shakes on a name that isn't in the deck or was already tried.
+- `prefers-reduced-motion: reduce` collapses all of it and hides the burst.
 
 ## Components
 
-`Board` (with tiles and the hint row), `Console` (input, suggestion listbox,
-counter), `Verdict`, plus the `.rules` disclosure. Buttons come in two shapes and
-only two: `.go` (filled clay, primary action) and `.ghost` (outlined pill,
-everything else).
+`Board` (tiles, clue rows, phone detail panel), `Console` (combobox, guesses
+left, clue button), `Verdict`, `Help`, `StatsPanel`, `Dialog` (native
+`<dialog>`), `Countdown`. Buttons come in three shapes: `.go` (coral, primary),
+`.ghost` (outlined), `.link` (underlined text).
