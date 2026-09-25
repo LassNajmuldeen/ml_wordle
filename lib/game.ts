@@ -42,6 +42,8 @@ const LAB_SHORT: Record<string, string> = {
   "Cornell Aeronautical Lab": "Cornell", "Black Forest Labs": "BFL", "Baidu Research": "Baidu",
   "Hugging Face": "HF", "EleutherAI": "Eleuther", "BigScience": "BigSci",
   "Stability AI": "Stability", "Johns Hopkins": "JHU", "AI21 Labs": "AI21", "NHK Labs": "NHK",
+  "Moonshot AI": "Moonshot", "Physical Intelligence": "Phys. Int.", "Samsung SAIT": "Samsung",
+  "Arc Institute": "Arc", "Renmin University": "Renmin", "Google Research": "G. Research",
 };
 
 // ── scale ───────────────────────────────────────────────────────────────────
@@ -180,18 +182,24 @@ function mulberry32(seed: number) {
 /**
  * The daily order is a shuffle seeded from the server secret. The repo is
  * public, so a seed in the source would let anyone compute every future answer.
+ * Each day draws from the entries eligible that day (see `Arch.from`), so
+ * adding models never changes a day that has already started.
  */
-let order: Arch[] | null = null;
-function ORDER(): Arch[] {
-  if (order) return order;
+const orders = new Map<number, Arch[]>();
+function orderFor(n: number): Arch[] {
+  // Practice numbers are far past any day, so they draw from every current entry.
+  const pool = ANSWER_POOL.filter((a) => (a.from ?? 0) <= n && n <= (a.until ?? Infinity));
+  const cached = orders.get(pool.length);
+  if (cached) return cached;
   const seed = createHash("sha256").update(`order:${secret()}`).digest().readUInt32LE(0);
-  const a = [...ANSWER_POOL];
+  const a = [...pool];
   const rnd = mulberry32(seed);
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
-  return (order = a);
+  orders.set(pool.length, a);
+  return a;
 }
 
 export function puzzleNumber(now = new Date()): number {
@@ -200,7 +208,7 @@ export function puzzleNumber(now = new Date()): number {
 }
 
 export function answerFor(n: number): Arch {
-  const o = ORDER();
+  const o = orderFor(n);
   return o[((n - 1) % o.length + o.length) % o.length];
 }
 

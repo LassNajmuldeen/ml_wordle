@@ -31,4 +31,12 @@ export type Arch = {
   blurb: string;
   /** 1 = can be the daily answer, 2 = guessable only */
   tier: 1 | 2;
+  /**
+   * First daily puzzle this entry can be the answer to. Adding answers
+   * reshuffles the order, so new entries only join from a future day and
+   * nobody's in-progress game changes answer underneath them.
+   */
+  from?: number;
+  /** Last daily puzzle before this entry retires from the rotation (still guessable). */
+  until?: number;
 };
