@@ -1,96 +1,148 @@
-import { FIELDS, FIELD_LABEL, type GuessResult } from "@/lib/ui";
+"use client";
 
-export type HintRow = { kind: "hint"; field: string; value: string };
-export type Row = ({ kind: "guess" } & GuessResult) | HintRow;
+import { useEffect, useState, type CSSProperties } from "react";
+import { CLUE_LABEL, FIELDS, FIELD_LABEL, FIELD_SHORT, type Clue, type GuessResult } from "@/lib/game";
+
+export type Row = ({ kind: "guess" } & GuessResult) | { kind: "clue"; clue: Clue; text: string };
 
 const STATE_WORD = {
-  exact: "exact match",
-  partial: "near match",
+  exact: "match",
+  partial: "close",
   miss: "no match",
-  unknown: "not comparable",
+  unknown: "can't compare",
 } as const;
 
 export function Board({
-  rows, freshIndex, total,
+  rows, fresh, total, flipStep,
 }: {
   rows: Row[];
-  freshIndex: number;
-  /** total attempts, so the unplayed rows are drawn as empty slots */
+  /** index of the row that just landed; only it animates */
+  fresh: number | null;
   total: number;
+  flipStep: number;
 }) {
-  const blanks = Math.max(0, total - rows.length);
+  // On a phone the tiles only fit short labels, so one row at a time can open
+  // to full text. The latest guess opens by default.
+  const lastGuess = rows.findLastIndex((r) => r.kind === "guess" && !r.correct);
+  const [open, setOpen] = useState<number | null>(null);
+  const openRow = open ?? lastGuess;
+  useEffect(() => setOpen(null), [rows.length]);
+
   return (
     <section className="board" aria-label="Your guesses">
-      <div className="guess headrow" aria-hidden>
-        <div className="cap" />
-        <div className="cols head">
+      <div className="row headrow" aria-hidden>
+        <div className="name" />
+        <div className="tiles">
           {FIELDS.map((f) => (
             <div className="h" key={f}>
-              {FIELD_LABEL[f]}
+              <span className="full">{FIELD_LABEL[f]}</span>
+              <span className="short">{FIELD_SHORT[f]}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {rows.map((r, i) => {
-        if (r.kind === "hint") {
+      <ol className="rows">
+        {rows.map((r, i) => {
+          const isFresh = i === fresh;
+          if (r.kind === "clue") {
+            return (
+              <li className={`row cluerow${isFresh ? " fresh" : ""}`} key={`c${i}`}>
+                <div className="name">
+                  <span className="nm">Clue</span>
+                </div>
+                <p className="clue">
+                  <span className="k">{CLUE_LABEL[r.clue]}</span> {r.text}
+                </p>
+              </li>
+            );
+          }
+          const expanded = openRow === i;
           return (
-            <div className="guess" key={`h${i}`}>
-              <div className="cap" />
-              <div className="hintrow">
-                <span className="k">Revealed</span>
-                <span className="v">
-                  {FIELD_LABEL[r.field as keyof typeof FIELD_LABEL] ?? r.field}: {r.value}
-                </span>
+            <li
+              className={`row${isFresh ? " fresh" : ""}${r.correct ? " solved" : ""}`}
+              key={`${r.name}-${i}`}
+            >
+              <div className="name">
+                <span className="nm">{r.name}</span>
+                <button
+                  className="more"
+                  aria-expanded={expanded}
+                  aria-label={`${expanded ? "Hide" : "Show"} details for ${r.name}`}
+                  onClick={() => setOpen(expanded ? -1 : i)}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                    <path d="M3 4.5 6 7.5l3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
               </div>
-            </div>
+              <div className="tiles">
+                {FIELDS.map((f, j) => {
+                  const c = r.cells[f];
+                  return (
+                    <div
+                      className={`tile${isFresh ? " flip" : ""}`}
+                      data-state={c.state}
+                      key={f}
+                      style={{ "--i": j, "--step": `${flipStep}ms` } as CSSProperties}
+                    >
+                      <span className="val full">
+                        {c.text}
+                        {c.dir && <Arrow dir={c.dir} />}
+                      </span>
+                      <span className="val short" aria-hidden>
+                        {c.short}
+                        {c.dir && <Arrow dir={c.dir} />}
+                      </span>
+                      {c.sub && <span className="sub">{c.sub}</span>}
+                      <span className="sr">
+                        {FIELD_LABEL[f]} {c.text}: {STATE_WORD[c.state]}
+                        {c.dir ? (c.dir === "up" ? ", answer is higher" : ", answer is lower") : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {expanded && (
+                <dl className="details" aria-hidden>
+                  {FIELDS.map((f) => {
+                    const c = r.cells[f];
+                    return (
+                      <div key={f} data-state={c.state}>
+                        <dt>{FIELD_LABEL[f]}</dt>
+                        <dd>
+                          {c.text}
+                          {c.dir && <Arrow dir={c.dir} />}
+                          {c.sub && <span className="why"> · {c.sub}</span>}
+                        </dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              )}
+            </li>
           );
-        }
-        return (
-          <div
-            className={`guess${i === freshIndex ? " fresh" : ""}${r.correct ? " solved" : ""}`}
-            key={`${r.name}-${i}`}
-          >
-            <div className="cap" data-win={r.correct}>
-              <span className="nm">{r.name}</span>
-            </div>
-            <div className="cols">
-              {FIELDS.map((f) => {
-                const c = r.cells[f];
-                return (
-                  <div className="tile" data-state={c.state} key={f}>
-                    <span className="lab">{FIELD_LABEL[f]}</span>
-                    <span className="val">
-                      {c.text}
-                      {c.dir && (
-                        <span className="arrow" aria-hidden>
-                          {c.dir === "up" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </span>
-                    {c.state === "partial" && c.sub && <span className="sub">{c.sub}</span>}
-                    <span className="sr">
-                      {FIELD_LABEL[f]}: {STATE_WORD[c.state]}
-                      {c.dir ? (c.dir === "up" ? ", answer is higher" : ", answer is lower") : ""}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+        })}
 
-      {Array.from({ length: blanks }, (_, i) => (
-        <div className="guess blank" key={`b${i}`} aria-hidden>
-          <div className="cap" />
-          <div className="cols">
-            {FIELDS.map((f) => (
-              <div className="tile empty" key={f} />
-            ))}
-          </div>
-        </div>
-      ))}
+        {Array.from({ length: Math.max(0, total - rows.length) }, (_, i) => (
+          <li className="row blank" key={`b${i}`} aria-hidden>
+            <div className="name" />
+            <div className="tiles">
+              {FIELDS.map((f) => (
+                <div className="tile empty" key={f} />
+              ))}
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
+  );
+}
+
+function Arrow({ dir }: { dir: "up" | "down" }) {
+  return (
+    <span className="arrow" aria-hidden>
+      {dir === "up" ? "↑" : "↓"}
+    </span>
   );
 }

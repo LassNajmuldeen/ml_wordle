@@ -1,19 +1,20 @@
 "use client";
 
 import { Countdown } from "@/components/Countdown";
-import type { Stats } from "@/lib/stats";
+import { liveStreak, type Stats } from "@/lib/stats";
 
 export function StatsPanel({
-  stats, highlight,
+  stats, today, highlight,
 }: {
   stats: Stats;
-  /** guess count of the game just finished, so its bar reads as "yours" */
+  today: number;
+  /** guess count of today's win, so its bar reads as "yours" */
   highlight: number | null;
 }) {
-  const peak = Math.max(1, ...stats.dist);
   if (stats.played === 0) {
-    return <p className="msg">No finished games yet. Your record shows up here.</p>;
+    return <p className="stats-empty">Finish today&rsquo;s puzzle and your streak starts here.</p>;
   }
+  const peak = Math.max(1, ...stats.dist);
   return (
     <>
       <dl className="figures">
@@ -27,7 +28,7 @@ export function StatsPanel({
         </div>
         <div>
           <dt>Streak</dt>
-          <dd className="num">{stats.streak}</dd>
+          <dd className="num">{liveStreak(stats, today)}</dd>
         </div>
         <div>
           <dt>Best</dt>
@@ -35,22 +36,24 @@ export function StatsPanel({
         </div>
       </dl>
       <div className="dist">
-        <p className="sr">Guess distribution</p>
+        <p className="dist-cap">Solved in</p>
         {stats.dist.map((count, i) => (
           <div className="distrow" key={i}>
             <span className="n num" aria-hidden>
               {i + 1}
             </span>
             <span className="sr">
-              Solved in {i + 1}: {count} {count === 1 ? "game" : "games"}
+              {i + 1} {i ? "guesses" : "guess"}: {count} {count === 1 ? "game" : "games"}
             </span>
-            <span
-              className="fill"
-              data-current={highlight === i + 1}
-              style={{ width: `${Math.max(count ? 8 : 2, (count / peak) * 100)}%` }}
-            />
-            <span className="c num" aria-hidden>
-              {count}
+            <span className="bar-track" aria-hidden>
+              <span
+                className="fill"
+                data-current={highlight === i + 1}
+                data-zero={count === 0}
+                style={{ width: `${Math.max(count ? 10 : 0, (count / peak) * 100)}%` }}
+              >
+                <span className="c num">{count}</span>
+              </span>
             </span>
           </div>
         ))}
