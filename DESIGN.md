@@ -45,13 +45,18 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
 
 - **Bar**: help · wordmark with a Daily / Practice switch under it · stats (with
   a 🔥 streak count once you have one). No rule underneath.
-- **Board**: seven equal tile columns. At ≥1024px the guess name sits in a 9.5rem
-  gutter to the left, and the input and verdict share that offset. Below that,
-  the name sits above its row.
+- **Board**: seven equal tile columns, centred on the page. At ≥1024px the guess
+  name sits in a 9.5rem gutter on the left, mirrored by an empty gutter on the
+  right, so the tiles (not the names) set the centre line. The input, clue
+  cards and verdict match the tile grid's width. Below 1024px the name sits
+  above its row.
+- **Clue cards**: two cards above the board, locked with a progress bar until
+  3 and 5 guesses, then showing the clue with a yellow border.
+- **Footer**: one line with the contact address, under a single rule.
 - **≤700px**: tiles shrink to ~48px and print short labels (`Attn`, `AR`,
-  `FAIR`, `0.1–1B↓`). The latest non-winning guess opens a detail panel with
-  the full values and why each yellow is yellow; the chevron on any row toggles
-  it.
+  `FAIR`, `0.1–1B↓`). The latest wrong guess opens a detail panel with the
+  full values; the chevron on any row toggles it. Tiles never carry notes under
+  the value.
 - **Verdict**: a raised card under the board with the result name, the answer,
   its one-liner, **Post your score** (X intent) and Copy / Share.
 
@@ -69,7 +74,6 @@ Text on ground: ink-3 7.2, ink-2 10.6. Coral button text 6.85.
 
 ## Components
 
-`Board` (tiles, clue rows, phone detail panel), `Console` (combobox, guesses
-left, clue button), `Verdict`, `Help`, `StatsPanel`, `Dialog` (native
+`Board` (tiles, phone detail panel), `Clues`, `Console` (combobox, guesses left), `Verdict`, `Help`, `StatsPanel`, `Dialog` (native
 `<dialog>`), `Countdown`. Buttons come in three shapes: `.go` (coral, primary),
 `.ghost` (outlined), `.link` (underlined text).

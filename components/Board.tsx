@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import { CLUE_LABEL, FIELDS, FIELD_LABEL, FIELD_SHORT, type Clue, type GuessResult } from "@/lib/game";
-
-export type Row = ({ kind: "guess" } & GuessResult) | { kind: "clue"; clue: Clue; text: string };
+import { FIELDS, FIELD_LABEL, FIELD_SHORT, type GuessResult } from "@/lib/shared";
 
 const STATE_WORD = {
   exact: "match",
-  partial: "close",
+  partial: "partly matches",
   miss: "no match",
   unknown: "can't compare",
 } as const;
@@ -15,17 +13,17 @@ const STATE_WORD = {
 export function Board({
   rows, fresh, total, flipStep,
 }: {
-  rows: Row[];
+  rows: GuessResult[];
   /** index of the row that just landed; only it animates */
   fresh: number | null;
   total: number;
   flipStep: number;
 }) {
   // On a phone the tiles only fit short labels, so one row at a time can open
-  // to full text. The latest guess opens by default.
-  const lastGuess = rows.findLastIndex((r) => r.kind === "guess" && !r.correct);
+  // to full text. The latest wrong guess opens by default.
+  const lastMiss = rows.findLastIndex((r) => !r.correct);
   const [open, setOpen] = useState<number | null>(null);
-  const openRow = open ?? lastGuess;
+  const openRow = open ?? lastMiss;
   useEffect(() => setOpen(null), [rows.length]);
 
   return (
@@ -45,24 +43,9 @@ export function Board({
       <ol className="rows">
         {rows.map((r, i) => {
           const isFresh = i === fresh;
-          if (r.kind === "clue") {
-            return (
-              <li className={`row cluerow${isFresh ? " fresh" : ""}`} key={`c${i}`}>
-                <div className="name">
-                  <span className="nm">Clue</span>
-                </div>
-                <p className="clue">
-                  <span className="k">{CLUE_LABEL[r.clue]}</span> {r.text}
-                </p>
-              </li>
-            );
-          }
           const expanded = openRow === i;
           return (
-            <li
-              className={`row${isFresh ? " fresh" : ""}${r.correct ? " solved" : ""}`}
-              key={`${r.name}-${i}`}
-            >
+            <li className={`row${isFresh ? " fresh" : ""}${r.correct ? " solved" : ""}`} key={r.name}>
               <div className="name">
                 <span className="nm">{r.name}</span>
                 <button
@@ -94,7 +77,6 @@ export function Board({
                         {c.short}
                         {c.dir && <Arrow dir={c.dir} />}
                       </span>
-                      {c.sub && <span className="sub">{c.sub}</span>}
                       <span className="sr">
                         {FIELD_LABEL[f]} {c.text}: {STATE_WORD[c.state]}
                         {c.dir ? (c.dir === "up" ? ", answer is higher" : ", answer is lower") : ""}
@@ -113,7 +95,6 @@ export function Board({
                         <dd>
                           {c.text}
                           {c.dir && <Arrow dir={c.dir} />}
-                          {c.sub && <span className="why"> · {c.sub}</span>}
                         </dd>
                       </div>
                     );

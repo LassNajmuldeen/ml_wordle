@@ -29,13 +29,17 @@ plain and short everywhere else. Three words: sharp, playful, in-on-it.
   Grey is neutral; green and yellow are what should pop.
 - **Gamer dark mode**: neon on charcoal, glowing borders.
 - **Cheerful SaaS**: soft purple gradients, exclamation marks, mascots.
+- **Explanatory sub-lines on tiles** ("Non-US academia", "generative family").
+  They were noise, and the near-misses they justified gave too much away.
 - **Chrome around the game.** The board is the product; anything else lives in a
   dialog or below the board.
 
 ## Design Principles
 1. **Use the convention players already know.** Green / yellow / grey tiles with
    arrows. Spend the originality on the data and the jokes.
-2. **Every wrong guess must pay.** Seven graded properties; near matches say why.
+2. **Every wrong guess must pay, and green means a lot.** Seven graded
+   properties. Yellow only for a genuine partial overlap between lists; no
+   near-miss families and no notes under tiles.
 3. **Celebrate the finish, once.** The flip, the hop, the burst and the result
    name happen when you win, not all the time.
 4. **Phone first.** Seven columns across at 390px, short labels, tap a row for

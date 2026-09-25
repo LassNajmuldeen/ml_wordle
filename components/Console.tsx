@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { CLUE_LABEL, type Clue } from "@/lib/game";
-import type { Arch } from "@/lib/types";
+import type { Candidate } from "@/lib/shared";
 
 type Props = {
   value: string;
   onChange: (v: string) => void;
   onSubmit: (v?: string) => void;
-  suggestions: Arch[];
+  suggestions: Candidate[];
   active: number;
   setActive: (i: number) => void;
   left: number;
@@ -16,11 +15,10 @@ type Props = {
   /** bumps on every rejected guess, to replay the shake */
   shake: number;
   disabled: boolean;
-  clue: { next: Clue; onTake: () => void } | null;
 };
 
 export function Console({
-  value, onChange, onSubmit, suggestions, active, setActive, left, msg, shake, disabled, clue,
+  value, onChange, onSubmit, suggestions, active, setActive, left, msg, shake, disabled,
 }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -121,15 +119,6 @@ export function Console({
             </>
           )}
         </p>
-        {clue && (
-          <button className="cluebtn" onClick={clue.onTake}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M7 1.5a4 4 0 0 0-2.3 7.3c.3.2.5.6.5 1v.7h3.6v-.7c0-.4.2-.8.5-1A4 4 0 0 0 7 1.5ZM5.4 12.5h3.2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-            </svg>
-            Clue: {CLUE_LABEL[clue.next].toLowerCase()}
-            <span className="cost">costs a guess</span>
-          </button>
-        )}
       </div>
     </section>
   );

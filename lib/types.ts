@@ -32,30 +32,3 @@ export type Arch = {
   /** 1 = can be the daily answer, 2 = guessable only */
   tier: 1 | 2;
 };
-
-export const MECHANISM_FAMILY: Record<Mechanism, string> = {
-  "Convolution": "Spatial",
-  "Recurrence": "Recurrent",
-  "State space": "Recurrent",
-  "Self-attention": "Attention",
-  "MLP": "Dense",
-  "Graph message passing": "Relational",
-  "Kernel machine": "Classical",
-  "Tree ensemble": "Classical",
-  "Energy-based": "Classical",
-  "Hybrid": "Hybrid",
-};
-
-export const PARADIGM_FAMILY: Record<Paradigm, string> = {
-  "Supervised": "Supervised",
-  "Autoregressive": "Self-supervised",
-  "Masked modeling": "Self-supervised",
-  "Contrastive": "Self-supervised",
-  "Self-distillation": "Self-supervised",
-  "Reconstruction": "Self-supervised",
-  "Diffusion": "Generative",
-  "Adversarial": "Generative",
-  "Normalizing flow": "Generative",
-  "Variational": "Generative",
-  "Reinforcement learning": "Reinforcement",
-};
