@@ -22,14 +22,19 @@ Each guess returns a row of seven tiles:
 | **Modality** | identical set | the sets overlap | disjoint |
 | **Block** | same core op | · | different |
 | **Training** | same objective | · | different |
-| **Lab** | same lab | a joint lab shares one (`CMU / Google Brain` vs `Google Brain`) | different |
+| **Lab** | same lab | a joint lab shares one (`CMU / Google Brain` vs `Google`), or a sister lab (Google vs Google DeepMind, Meta AI vs FAIR) | different |
 | **Size** | same order-of-magnitude bucket | · | different, with ↑/↓ toward the answer |
 | **Weights** | same (Open / Partial / Closed) | · | different |
 
 **Yellow is rare on purpose.** A green on any column is already a lot of
-information, so yellow only means a genuine partial overlap between two lists.
-There are no "same family" or "sibling lab" near-misses and no explanatory
-notes under the values.
+information, so yellow only means a genuine partial overlap between two lists,
+plus two sister-lab pairs: Google and Google DeepMind, Meta AI and FAIR. There
+are no "same family" near-misses and no explanatory notes under the values.
+
+**Labs grade by the name players use.** Tiles show the lab credited on the
+paper, but Google Brain and Google Research grade as Google, DeepMind as Google
+DeepMind, and Microsoft Research Asia as Microsoft Research (`LAB_KEY` in
+`lib/game.ts`).
 
 **Hatched** means Size can't be compared: closed labs never published a count
 (GPT-4, Gemini, Claude), and SVMs and random forests don't have one. The two are
