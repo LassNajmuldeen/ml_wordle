@@ -292,7 +292,7 @@ export function Game({ candidates }: { candidates: Candidate[] }) {
 
       <Dialog open={dialog === "stats"} onClose={closeDialog} title="Your record">
         {stats && daily ? (
-          <StatsPanel stats={stats} today={daily} highlight={mode === "daily" && won ? guessCount : null} />
+          <StatsPanel stats={stats} today={daily} highlight={mode === "daily" && over ? (won ? guessCount : "X") : null} />
         ) : null}
       </Dialog>
     </>

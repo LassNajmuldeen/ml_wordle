@@ -8,13 +8,18 @@ export function StatsPanel({
 }: {
   stats: Stats;
   today: number;
-  /** guess count of today's win, so its bar reads as "yours" */
-  highlight: number | null;
+  /** today's row, so its bar reads as "yours": the guess count, or "X" for a loss */
+  highlight: number | "X" | null;
 }) {
   if (stats.played === 0) {
     return <p className="stats-empty">Finish today&rsquo;s puzzle and your streak starts here.</p>;
   }
-  const peak = Math.max(1, ...stats.dist);
+  // The last row counts the dailies that ran out of guesses.
+  const rows: { label: number | "X"; count: number }[] = [
+    ...stats.dist.map((count, i) => ({ label: i + 1, count })),
+    { label: "X", count: stats.played - stats.wins },
+  ];
+  const peak = Math.max(1, ...rows.map((r) => r.count));
   return (
     <>
       <dl className="figures">
@@ -36,19 +41,21 @@ export function StatsPanel({
         </div>
       </dl>
       <div className="dist">
-        <p className="dist-cap">Solved in</p>
-        {stats.dist.map((count, i) => (
-          <div className="distrow" key={i}>
+        <p className="dist-cap">Guesses</p>
+        {rows.map(({ label, count }) => (
+          <div className="distrow" key={label}>
             <span className="n num" aria-hidden>
-              {i + 1}
+              {label}
             </span>
             <span className="sr">
-              {i + 1} {i ? "guesses" : "guess"}: {count} {count === 1 ? "game" : "games"}
+              {label === "X" ? "Not solved" : `Solved in ${label} ${label === 1 ? "guess" : "guesses"}`}:{" "}
+              {count} {count === 1 ? "game" : "games"}
             </span>
             <span className="bar-track" aria-hidden>
               <span
                 className="fill"
-                data-current={highlight === i + 1}
+                data-current={highlight === label}
+                data-loss={label === "X"}
                 data-zero={count === 0}
                 style={{ width: `${Math.max(count ? 10 : 0, (count / peak) * 100)}%` }}
               >
