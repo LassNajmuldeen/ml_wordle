@@ -442,6 +442,7 @@ dialog::backdrop { background: oklch(0.12 0.02 275 / 0.72); }
   transition: width 400ms var(--ease);
 }
 .fill[data-current="true"] { background: var(--exact); }
+.fill[data-loss="true"][data-current="true"] { background: var(--accent); color: var(--accent-ink); }
 .fill[data-zero="true"] { background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); color: var(--ink-3); }
 .fill .c { font-family: var(--font-mono), monospace; font-size: 0.75rem; font-weight: 700; }
 
