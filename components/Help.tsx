@@ -30,8 +30,8 @@ export function Help({ onStart }: { onStart: () => void }) {
         <li>
           <span className="chip" data-state="partial" />
           <span>
-            <b>Yellow</b>: partly the same. Only for lists: BERT is Language, CLIP is Vision and
-            Language.
+            <b>Yellow</b>: partly the same. BERT is Language, CLIP is Vision and Language.
+            On Lab, sister labs are yellow too: Google and Google DeepMind, Meta AI and FAIR.
           </span>
         </li>
         <li>

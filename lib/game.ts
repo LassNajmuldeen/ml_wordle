@@ -31,11 +31,10 @@ const PARADIGM_SHORT: Record<Paradigm, string> = {
   "Variational": "Var", "Reinforcement learning": "RL",
 };
 const LAB_SHORT: Record<string, string> = {
-  "Google DeepMind": "GDM", "Google Brain": "Brain", "Facebook AI Research": "FAIR",
+  "Google DeepMind": "GDM", "Google Brain": "Brain",
   "Meta AI": "Meta", "Microsoft Research": "MSR", "Microsoft Research Asia": "MSRA",
   "Université de Montréal": "Montréal", "Universiteit van Amsterdam": "UvA",
-  "Stanford University": "Stanford", "University of Toronto": "Toronto",
-  "University of Washington": "UW", "University of Oxford": "Oxford",
+  "University of Toronto": "Toronto", "University of Washington": "UW",
   "University of Freiburg": "Freiburg", "UC Berkeley": "Berkeley", "UC San Diego": "UCSD",
   "Allen Institute for AI": "AI2", "AT&T Bell Labs": "Bell Labs", "Mistral AI": "Mistral",
   "Technology Innovation Institute": "TII", "TU München": "TUM", "RWKV Foundation": "RWKV",
@@ -66,9 +65,40 @@ export function bucketLabel(a: Pick<Arch, "params" | "mechanism">): string {
   return b === -1 ? "undisclosed" : b === -2 ? "non-parametric" : BUCKETS[b];
 }
 
+/**
+ * What the Lab column grades on. Tiles show the lab as credited on the paper;
+ * grading folds a lab into the one players would call it by. Google Brain and
+ * Google Research are Google, DeepMind is Google DeepMind, MSRA is Microsoft
+ * Research.
+ */
+const LAB_KEY: Record<string, string> = {
+  "Google Brain": "Google", "Google Research": "Google",
+  "DeepMind": "Google DeepMind",
+  "Microsoft Research Asia": "Microsoft Research",
+  "Mila": "Université de Montréal",
+  "Cornell Aeronautical Lab": "Cornell",
+};
+/** Sister labs under one company: the only single-lab yellow. */
+const LAB_PARENT: Record<string, string> = {
+  "Google": "Alphabet", "Google DeepMind": "Alphabet",
+  "Meta AI": "Meta", "FAIR": "Meta",
+};
+
 /** "CMU / Google Brain" is two labs. */
 function labs(org: string): string[] {
   return org.split(" / ").map((s) => s.trim());
+}
+function labKeys(org: string): string[] {
+  return [...new Set(labs(org).map((l) => LAB_KEY[l] ?? l))];
+}
+/** Green on the same labs, yellow on a shared lab or a sister lab, otherwise grey. */
+function labState(guess: string, answer: string): Cell["state"] {
+  const g = labKeys(guess);
+  const a = labKeys(answer);
+  const state = overlap(g, a);
+  if (state !== "miss") return state;
+  const parents = new Set(a.map((l) => LAB_PARENT[l]).filter(Boolean));
+  return g.some((l) => parents.has(LAB_PARENT[l])) ? "partial" : "miss";
 }
 function shortOrg(org: string): string {
   const ls = labs(org);
@@ -86,8 +116,9 @@ function overlap(g: string[], a: string[]): Cell["state"] {
 // ── comparison ──────────────────────────────────────────────────────────────
 /**
  * Yellow is rare on purpose: a green on any column already carries a lot of
- * information. Only a genuine partial overlap is yellow: shared modalities, or
- * a joint lab that includes one of the answer's labs. Everything else is exact
+ * information. Only a genuine partial overlap is yellow: shared modalities, a
+ * joint lab that includes one of the answer's labs, or a sister lab (Google and
+ * Google DeepMind, Meta AI and FAIR). Everything else is exact
  * or nothing, with arrows on the two ordered columns.
  */
 export function compare(guess: Arch, answer: Arch): GuessResult {
@@ -122,7 +153,7 @@ export function compare(guess: Arch, answer: Arch): GuessResult {
         short: PARADIGM_SHORT[guess.paradigm],
       },
       origin: {
-        state: overlap(labs(guess.org), labs(answer.org)),
+        state: labState(guess.org, answer.org),
         text: guess.org,
         short: shortOrg(guess.org),
       },
