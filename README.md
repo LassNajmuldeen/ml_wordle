@@ -39,8 +39,8 @@ labelled `undisclosed` and `non-parametric` and only match their own kind.
 description, with its own name blanked out. It's free and only appears if you
 click for it; the server won't send it before then.
 
-**Results** are named for how quickly you got there: 1 guess is *Zero-shot*,
-2 *One-shot*, 3 *Few-shot*, then *Converged*, *Fine-tuned*, and so on. A loss
+**Results** are named for how quickly you got there: 1 guess is *ZERO-SHOTTED!*,
+2 *One-shot*, 3 *Few-shot*, then *Converged*, *Fine-tuned*, *Overfit, but it counts*, and *Last epoch* on the final guess. A loss
 is *Diverged*. The verdict has a one-tap **Post your score** to X.
 
 ---

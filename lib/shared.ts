@@ -77,7 +77,7 @@ export function norm(s: string): string {
 export function rank(won: boolean, guesses: number): string {
   if (!won) return "Diverged";
   return (
-    ["Zero-shot", "One-shot", "Few-shot", "Converged", "Fine-tuned", "Overfit, but it counts", "Early stopping at the buzzer"][
+    ["ZERO-SHOTTED!", "One-shot", "Few-shot", "Converged", "Fine-tuned", "Overfit, but it counts", "Last epoch"][
       guesses - 1
     ] ?? "Solved"
   );
