@@ -59,31 +59,29 @@ export function Verdict({
   }
 
   return (
-    <section className="verdict" data-win={won} aria-live="polite">
+    <section className="verdict" data-win={won} aria-live="polite" tabIndex={-1} data-autofocus>
       {celebrate && <Burst />}
-      <p className="rank">{rank(won, guesses)}</p>
-      <p className="score">
-        {won ? (
-          <>
+      {won ? (
+        <>
+          <p className="rank">{rank(won, guesses)}</p>
+          <p className="score">
             Solved in <span className="num">{guesses}</span> of {MAX_GUESSES}
             {streak ? (
               <>
                 {" "}· <span className="num">{streak}</span>-day streak
               </>
             ) : null}
-          </>
-        ) : (
-          "Out of guesses. It was:"
-        )}
-      </p>
+          </p>
+        </>
+      ) : (
+        <p className="lead">Diverged, the answer was:</p>
+      )}
 
       <h2 className="answer">{answer.name}</h2>
       <p className="facts">
-        {answer.year} · {answer.org} · {answer.mechanism} · {answer.size} ·{" "}
-        {answer.weights.toLowerCase()} weights
+        {answer.year} · {answer.org}
       </p>
       <p className="blurb">{answer.blurb}</p>
-      {answer.parents.length > 0 && <p className="from">Builds on {answer.parents.join(", ")}</p>}
 
       <div className="actions">
         <button className="go x" onClick={postToX}>
@@ -105,16 +103,14 @@ export function Verdict({
 
       <div className="after">
         {puzzle ? <Countdown /> : null}
-        <div className="links">
-          <button className="link" onClick={onPractice}>
-            {puzzle ? "Play a practice round" : "Another practice round"}
+        <button className="link" onClick={onPractice}>
+          {puzzle ? "Play practice" : "Another practice round"}
+        </button>
+        {puzzle ? (
+          <button className="link" onClick={onStats}>
+            Your record
           </button>
-          {puzzle ? (
-            <button className="link" onClick={onStats}>
-              See your record
-            </button>
-          ) : null}
-        </div>
+        ) : null}
       </div>
     </section>
   );

@@ -19,7 +19,11 @@ export function Dialog({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (open && !el.open) el.showModal();
+    if (open && !el.open) {
+      el.showModal();
+      // Land on the content, not the close button, when the content asks for it.
+      el.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+    }
     if (!open && el.open) el.close();
   }, [open]);
 
